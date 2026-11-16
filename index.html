@@ -1,0 +1,1421 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>拾词 · 八字成诗，一诗成画</title>
+<style>
+  :root{
+    color-scheme: dark;
+    --ink:#08121A;
+    --ink-soft:#10202B;
+    --silk:#EDE4D0;
+    --muted:rgba(237,228,208,.52);
+    --gold:#D3B173;
+    --gold-dim:rgba(211,177,115,.28);
+    --cinnabar:#B8402C;
+    --jade:#7FA88B;
+    --serif:"Songti SC","Noto Serif SC","Source Han Serif SC","STSong","SimSun",serif;
+    --sans:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,-apple-system,sans-serif;
+  }
+  *{box-sizing:border-box}
+  [hidden]{display:none !important}
+  html,body{margin:0}
+  body{
+    background:
+      radial-gradient(120% 80% at 50% -12%, #182B3D 0%, rgba(24,43,61,0) 55%),
+      radial-gradient(90% 60% at 92% 104%, #1B2B33 0%, rgba(27,43,51,0) 60%),
+      var(--ink);
+    color:var(--silk);
+    font-family:var(--sans);
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;
+    background-image:
+      repeating-linear-gradient(0deg, rgba(237,228,208,.03) 0 1px, rgba(0,0,0,0) 1px 3px),
+      repeating-linear-gradient(90deg, rgba(237,228,208,.022) 0 1px, rgba(0,0,0,0) 1px 3px);
+    mix-blend-mode:soft-light;
+  }
+  main{position:relative;z-index:1;max-width:540px;margin:0 auto;padding:24px 16px 64px}
+
+  .masthead{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+  .masthead h1{
+    margin:0;font-family:var(--serif);font-weight:600;font-size:30px;letter-spacing:.18em;
+    line-height:1.1;color:var(--silk);
+  }
+  .masthead p{
+    margin:8px 0 0;font-size:12px;letter-spacing:.16em;color:var(--muted);
+  }
+  .seal{
+    flex:none;width:50px;height:50px;border-radius:3px;background:var(--cinnabar);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    font-family:var(--serif);font-size:19px;line-height:1.05;color:#F6EAD8;
+    transform:rotate(-4deg);
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.16), 0 8px 22px -10px #000;
+    letter-spacing:0;
+  }
+
+  .meta{
+    display:flex;justify-content:space-between;align-items:baseline;gap:12px;
+    margin-top:20px;padding-bottom:8px;
+    border-bottom:1px solid var(--gold-dim);
+    font-size:11px;letter-spacing:.18em;color:var(--muted);
+  }
+  .meta b{font-family:var(--serif);font-weight:600;font-size:15px;letter-spacing:.06em;color:var(--silk)}
+
+  .stage{
+    position:relative;margin-top:14px;padding:7px;border-radius:10px;
+    border:1px solid var(--gold-dim);
+    background:linear-gradient(180deg,rgba(20,37,49,.92),rgba(9,19,27,.94));
+    box-shadow:0 30px 70px -40px #000, inset 0 1px 0 rgba(237,228,208,.06);
+  }
+  #game{display:block;width:100%;aspect-ratio:1/1;border-radius:6px;background:#0A1721;touch-action:none}
+
+  .overlay{
+    position:absolute;inset:7px;border-radius:6px;padding:22px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;
+    text-align:center;background:rgba(6,13,19,.82);backdrop-filter:blur(3px);
+  }
+  .overlay .kicker{font-size:11px;letter-spacing:.3em;color:var(--gold);margin:0}
+  .overlay h2{margin:0;font-family:var(--serif);font-weight:600;font-size:24px;letter-spacing:.08em;color:var(--silk)}
+  .overlay p{margin:0;max-width:30ch;font-size:13px;line-height:1.8;color:var(--muted)}
+
+  .pad{
+    display:grid;grid-template-columns:repeat(3,54px);grid-template-rows:repeat(2,44px);
+    gap:6px;justify-content:center;margin:14px auto 0;
+  }
+  .pad button{
+    font:inherit;font-size:16px;color:rgba(237,228,208,.7);
+    border:1px solid var(--gold-dim);border-radius:5px;background:rgba(237,228,208,.03);
+    cursor:pointer;transition:background .15s,color .15s;touch-action:none;
+  }
+  .pad button:hover{background:rgba(211,177,115,.12);color:var(--silk)}
+  .pad button:active{background:rgba(211,177,115,.2)}
+  .pad button[data-dir="up"]{grid-column:2;grid-row:1}
+  .pad button[data-dir="left"]{grid-column:1;grid-row:2}
+  .pad button[data-dir="down"]{grid-column:2;grid-row:2}
+  .pad button[data-dir="right"]{grid-column:3;grid-row:2}
+  .pad .pause{grid-column:1;grid-row:1;font-size:11px;letter-spacing:.12em}
+  .pad .settings-btn{grid-column:3;grid-row:1;font-size:11px;letter-spacing:.12em}
+
+  .settings{
+    margin-top:14px;padding:14px 16px 16px;border-radius:8px;
+    border:1px solid var(--gold-dim);background:rgba(16,30,41,.72);
+  }
+  .settings-head{
+    display:flex;justify-content:space-between;align-items:center;
+    font-size:11px;letter-spacing:.22em;color:var(--muted);
+  }
+  .settings-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;flex-wrap:wrap}
+  .settings-label{font-size:12px;letter-spacing:.1em;color:rgba(237,228,208,.66)}
+  .seg{display:flex;border:1px solid rgba(211,177,115,.32);border-radius:5px;overflow:hidden}
+  .seg button{
+    font:inherit;font-size:12px;letter-spacing:.06em;padding:8px 13px;
+    background:transparent;border:0;border-right:1px solid rgba(211,177,115,.16);
+    color:rgba(237,228,208,.6);cursor:pointer;transition:background .15s,color .15s;
+  }
+  .seg button:last-child{border-right:0}
+  .seg button:hover{background:rgba(211,177,115,.1);color:var(--silk)}
+  .seg button[aria-pressed="true"]{background:rgba(211,177,115,.9);color:#11212B;font-weight:600}
+  .seg button:focus-visible{outline:2px solid #E8CF9B;outline-offset:-2px}
+  .settings-note{margin:12px 0 0;font-size:11px;line-height:1.7;letter-spacing:.04em;color:rgba(237,228,208,.42)}
+  .settings-note b{font-weight:500;color:rgba(237,228,208,.62)}
+
+  .box{margin-top:22px}
+  .box-head{
+    display:flex;justify-content:space-between;align-items:baseline;
+    font-size:11px;letter-spacing:.2em;color:var(--muted);
+  }
+  .box-head span:last-child{font-family:var(--serif);font-size:13px;letter-spacing:.06em;color:var(--gold)}
+  .slots{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+  .slot{
+    height:42px;border:1px dashed rgba(211,177,115,.2);border-radius:4px;
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--serif);font-size:15px;letter-spacing:.08em;color:rgba(237,228,208,.22);
+    transition:border-color .3s, color .3s, background .3s;
+  }
+  .slot.filled{
+    border-style:solid;border-color:rgba(211,177,115,.5);color:var(--silk);
+    background:linear-gradient(180deg,rgba(211,177,115,.14),rgba(211,177,115,.03));
+  }
+  .slot.fresh{animation:slot-pop .45s ease}
+  @keyframes slot-pop{
+    0%{transform:scale(.86);border-color:var(--gold)}
+    60%{transform:scale(1.04)}
+    100%{transform:scale(1)}
+  }
+
+  .poem-panel{
+    margin-top:28px;padding:20px 18px 22px;border-radius:10px;
+    border:1px solid var(--gold-dim);
+    background:linear-gradient(180deg,rgba(17,31,42,.94),rgba(9,17,24,.94));
+    box-shadow:0 30px 70px -50px #000;
+  }
+  .panel-head{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    padding-bottom:12px;border-bottom:1px solid rgba(211,177,115,.18);
+  }
+  .panel-head .tag{display:flex;align-items:center;gap:8px;font-size:11px;letter-spacing:.24em;color:var(--muted)}
+  .panel-head .tag::before{content:"";width:9px;height:9px;background:var(--cinnabar);border-radius:1px}
+  .panel-head .words{
+    font-family:var(--serif);font-size:12px;letter-spacing:.06em;color:var(--muted);
+    max-width:62%;text-align:right;
+  }
+
+  .status{
+    margin:16px 0 0;font-size:13px;letter-spacing:.08em;color:var(--muted);
+    display:flex;align-items:center;gap:10px;
+  }
+  .status .dot{
+    width:6px;height:6px;border-radius:50%;background:var(--gold);
+    animation:breathe 1.1s ease-in-out infinite;
+  }
+  @keyframes breathe{0%,100%{opacity:.25;transform:scale(.8)}50%{opacity:1;transform:scale(1.15)}}
+
+  .poem-wrap{
+    display:flex;flex-direction:row-reverse;align-items:flex-start;justify-content:flex-start;
+    gap:24px;margin-top:18px;min-height:210px;overflow-x:auto;padding:4px 2px 6px;
+  }
+  .poem-title{
+    writing-mode:vertical-rl;font-family:var(--serif);font-weight:600;
+    font-size:23px;letter-spacing:.28em;color:var(--gold);padding-top:2px;
+  }
+  .poem-lines{writing-mode:vertical-rl;font-family:var(--serif);font-size:18px;line-height:1.95;letter-spacing:.16em;color:#F1E8D6}
+  .poem-lines p{margin:0 14px 0 0}
+  .poem-lines p:last-child{margin-right:0}
+
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+  .btn{
+    font:inherit;font-size:13px;letter-spacing:.06em;padding:10px 15px;border-radius:5px;
+    border:1px solid rgba(211,177,115,.4);background:rgba(237,228,208,.02);color:var(--silk);
+    cursor:pointer;transition:background .18s,border-color .18s,transform .06s;
+  }
+  .btn:hover{background:rgba(211,177,115,.12);border-color:rgba(211,177,115,.62)}
+  .btn:active{transform:translateY(1px)}
+  .btn:focus-visible{outline:2px solid #E8CF9B;outline-offset:2px}
+  .btn.primary{background:var(--gold);border-color:var(--gold);color:#11212B;font-weight:600}
+  .btn.primary:hover{background:#E2C489;border-color:#E2C489}
+  .btn:disabled{opacity:.42;cursor:default;transform:none}
+
+  .art-frame{
+    margin-top:20px;border-radius:8px;overflow:hidden;
+    border:1px solid rgba(211,177,115,.28);
+    box-shadow:0 40px 80px -50px #000;
+  }
+  #art{
+    display:block;width:100%;height:auto;
+    opacity:0;transform:scale(1.025);
+    transition:opacity .9s ease, transform 1.3s cubic-bezier(.16,.84,.3,1);
+  }
+  #art.show{opacity:1;transform:scale(1)}
+
+  .footnote{
+    margin:12px 0 0;font-size:11px;line-height:1.8;letter-spacing:.05em;color:rgba(237,228,208,.42);
+  }
+  .footnote b{font-weight:500;color:rgba(237,228,208,.6)}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:.001ms !important;transition-duration:.001ms !important}
+  }
+</style>
+<meta name="description" content="一款会写诗的水墨贪吃蛇：吃下八个中文词，得到一首诗，再得一幅画。">
+<meta property="og:title" content="拾词 · 八字成诗，一诗成画">
+<meta property="og:description" content="贪吃蛇吃下八个中文词，自动写一首诗，并把诗画成一幅水墨画。可重混。">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#08121A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Crect%20width='64'%20height='64'%20rx='6'%20fill='%23B8402C'/%3E%3Ctext%20x='32'%20y='45'%20font-size='36'%20text-anchor='middle'%20fill='%23F6EAD8'%20font-family='serif'%3E%E6%8B%BE%3C/text%3E%3C/svg%3E">
+</head>
+<body>
+<main>
+  <header class="masthead">
+    <div>
+      <h1>拾词</h1>
+      <p>吃下八个词　得到一首诗　再得一幅画</p>
+    </div>
+    <div class="seal" aria-hidden="true"><span>拾</span><span>词</span></div>
+  </header>
+
+  <div class="meta">
+    <span>词盒 <b id="countLabel">0</b> / 8</span>
+    <span>身长 <b id="lengthLabel">3</b></span>
+  </div>
+
+  <div class="stage">
+    <canvas id="game" aria-label="贪吃蛇棋盘"></canvas>
+    <div class="overlay" id="overlay">
+      <p class="kicker">八字成诗</p>
+      <h2>吃下八个词</h2>
+      <p>方向键或 WASD 移动，空格暂停。每吃一个词，它就落进下面的盒子——集满八个，开始写诗。</p>
+      <button class="btn primary" data-act="start">开始</button>
+    </div>
+  </div>
+
+  <div class="pad" role="group" aria-label="方向键">
+    <button class="pause" data-act="pause">暂停</button>
+    <button class="settings-btn" data-act="settings" aria-expanded="false" aria-controls="settingsPanel">设置</button>
+    <button data-dir="up" aria-label="上">↑</button>
+    <button data-dir="left" aria-label="左">←</button>
+    <button data-dir="down" aria-label="下">↓</button>
+    <button data-dir="right" aria-label="右">→</button>
+  </div>
+
+  <section class="settings" id="settingsPanel" hidden aria-label="设置">
+    <div class="settings-head">
+      <span>设置</span>
+    </div>
+    <div class="settings-row">
+      <span class="settings-label">起始速度</span>
+      <div class="seg" id="speedSeg" role="group" aria-label="起始速度">
+        <button data-speed="210">慢</button>
+        <button data-speed="168">标准</button>
+        <button data-speed="130">快</button>
+        <button data-speed="100">极快</button>
+      </div>
+    </div>
+    <p class="settings-note">每吃一个词仍会略微加速，这里调的是开局速度。快捷键：<b>[</b> 减慢，<b>]</b> 加快，<b>Esc</b> 收起。</p>
+  </section>
+
+  <section class="box" aria-label="词盒">
+    <div class="box-head"><span>词盒</span><span id="boxHint">还差 8 个</span></div>
+    <div class="slots" id="slots"></div>
+  </section>
+
+  <section class="poem-panel" id="poemPanel" hidden aria-live="polite">
+    <div class="panel-head">
+      <span class="tag">诗成</span>
+      <span class="words" id="poemWords"></span>
+    </div>
+    <p class="status" id="poemStatus"><span class="dot"></span><span id="poemStatusText">正在写诗…</span></p>
+
+    <div id="poemBody" hidden>
+      <div class="poem-wrap">
+        <div class="poem-title" id="poemTitle"></div>
+        <div class="poem-lines" id="poemLines"></div>
+      </div>
+      <div class="actions">
+        <button class="btn primary" id="remixBtn">重新混这首诗</button>
+        <button class="btn" id="saveBtn">保存画作</button>
+        <button class="btn" id="againBtn">再玩一局</button>
+      </div>
+      <div class="art-frame"><canvas id="art" aria-label="由诗生成的画面"></canvas></div>
+      <p class="footnote" id="footnote">画面由诗中的意象与色调生成，每次重混都会重画。</p>
+    </div>
+  </section>
+</main>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- 词库 ---------- */
+  const WORDS = [
+    "月光","屋顶","薄荷","铁轨","白鸽","潮汐","灯塔","麦田",
+    "旧信","风铃","雪原","深井","纸鸢","荒原","铜锁","蝉鸣",
+    "渡口","星图","沙漏","木屋","蓝鲸","山雾","铁锈","银针",
+    "苔痕","暮色","野火","瓷器","蝉蜕","河床","云梯","灰烬",
+    "春汛","松脂","石阶","药香","雨巷","竹影","街灯","雪松",
+    "铁皮","湖心","旧钟","沙丘","电线","春分","荒岛","钟摆"
+  ];
+
+  const COLS = 16, ROWS = 16;
+  const DPR = Math.min(window.devicePixelRatio || 1, 2);
+  const SERIF = '"Songti SC","Noto Serif SC","Source Han Serif SC","STSong","SimSun",serif';
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  const canvas = document.getElementById("game");
+  const ctx = canvas.getContext("2d");
+  const overlay = document.getElementById("overlay");
+  const countLabel = document.getElementById("countLabel");
+  const lengthLabel = document.getElementById("lengthLabel");
+  const boxHint = document.getElementById("boxHint");
+  const slotsEl = document.getElementById("slots");
+  const poemPanel = document.getElementById("poemPanel");
+  const poemStatus = document.getElementById("poemStatus");
+  const poemStatusText = document.getElementById("poemStatusText");
+  const poemBody = document.getElementById("poemBody");
+  const poemTitleEl = document.getElementById("poemTitle");
+  const poemLinesEl = document.getElementById("poemLines");
+  const poemWordsEl = document.getElementById("poemWords");
+  const artCanvas = document.getElementById("art");
+  const settingsPanel = document.getElementById("settingsPanel");
+  const speedSeg = document.getElementById("speedSeg");
+  const settingsBtn = document.querySelector('[data-act="settings"]');
+  const remixBtn = document.getElementById("remixBtn");
+  const saveBtn = document.getElementById("saveBtn");
+  const againBtn = document.getElementById("againBtn");
+  const footnote = document.getElementById("footnote");
+
+  /* ---------- 游戏状态 ---------- */
+  const state = {
+    phase: "ready",     // ready | playing | paused | over | writing
+    snake: [],
+    dir: {x:1,y:0},
+    queue: [],
+    foods: [],
+    box: [],
+    grow: 0,
+    speed: 168,
+    base: 168,
+    frozen: false,
+    captured: [],
+    poem: null,
+    view: 320,
+    t: 0
+  };
+
+  function resetGame(){
+    setSettings(false);
+    const cx = Math.floor(COLS/2), cy = Math.floor(ROWS/2);
+    state.snake = [{x:cx,y:cy},{x:cx-1,y:cy},{x:cx-2,y:cy}];
+    state.dir = {x:1,y:0};
+    state.queue = [];
+    state.foods = [];
+    state.box = [];
+    state.grow = 0;
+    state.speed = state.base;
+    state.captured = [];
+    state.poem = null;
+    state.phase = "ready";
+    spawnFoods();
+    renderBox();
+    updateMeta();
+    showReady();
+  }
+
+  function showReady(){
+    overlay.hidden = false;
+    overlay.innerHTML = `
+      <p class="kicker">八字成诗</p>
+      <h2>吃下八个词</h2>
+      <p>方向键或 WASD 移动，空格暂停。每吃一个词，它就落进下面的盒子——集满八个，开始写诗。</p>
+      <button class="btn primary" data-act="start">开始</button>`;
+  }
+
+  function startGame(){
+    if(state.frozen) setSettings(false);
+    overlay.hidden = true;
+    state.phase = "playing";
+    state.last = 0;
+    state.acc = 0;
+  }
+
+  function togglePause(){
+    if(state.phase === "playing"){
+      state.phase = "paused";
+      overlay.hidden = false;
+      overlay.innerHTML = `
+        <p class="kicker">停一停</p>
+        <h2>已暂停</h2>
+        <p>空格或下面的按钮继续。</p>
+        <button class="btn primary" data-act="resume">继续</button>`;
+    } else if(state.phase === "paused"){
+      overlay.hidden = true;
+      state.phase = "playing";
+      state.acc = 0;
+      state.last = 0;
+    }
+  }
+
+  function gameOver(reason){
+    state.phase = "over";
+    overlay.hidden = false;
+    overlay.innerHTML = `
+      <p class="kicker">这一局</p>
+      <h2>${reason}</h2>
+      <p>已收 ${state.box.length} 个词。再来一局，凑满八个。</p>
+      <button class="btn primary" data-act="start">重新开始</button>`;
+  }
+
+  function updateMeta(){
+    countLabel.textContent = state.box.length;
+    lengthLabel.textContent = state.snake.length;
+    const left = 8 - state.box.length;
+    boxHint.textContent = left > 0 ? `还差 ${left} 个` : "已集齐";
+  }
+
+  /* ---------- 速度设置 ---------- */
+  const SPEEDS = [210, 168, 130, 100];
+
+  function syncSpeedUI(){
+    for(const btn of speedSeg.querySelectorAll("button")){
+      btn.setAttribute("aria-pressed", String(Number(btn.dataset.speed) === state.base));
+    }
+  }
+
+  function setBaseSpeed(base){
+    state.base = base;
+    const eaten = state.phase === "writing" ? 8 : state.box.length;
+    state.speed = Math.max(80, base - eaten * 5);
+    syncSpeedUI();
+  }
+
+  function cycleSpeed(step){
+    let i = SPEEDS.indexOf(state.base);
+    if(i < 0) i = 1;
+    const next = Math.min(SPEEDS.length - 1, Math.max(0, i + step));
+    setBaseSpeed(SPEEDS[next]);
+  }
+
+  function setSettings(open){
+    state.frozen = open;
+    settingsPanel.hidden = !open;
+    settingsBtn.textContent = open ? "收起" : "设置";
+    settingsBtn.setAttribute("aria-expanded", String(open));
+    if(open){
+      settingsPanel.scrollIntoView({block:"nearest", behavior: reduceMotion ? "auto" : "smooth"});
+    }
+  }
+
+  /* ---------- 棋盘尺寸 ---------- */
+  function resize(){
+    const rect = canvas.getBoundingClientRect();
+    const size = Math.max(200, Math.floor(rect.width || 320));
+    state.view = size;
+    canvas.width = Math.floor(size * DPR);
+    canvas.height = Math.floor(size * DPR);
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  }
+  window.addEventListener("resize", resize);
+
+  function cell(){ return state.view / COLS; }
+
+  /* ---------- 食物 ---------- */
+  function occupied(){
+    const set = new Set();
+    state.snake.forEach(s => set.add(s.x + "," + s.y));
+    state.foods.forEach(f => set.add(f.x + "," + f.y));
+    return set;
+  }
+
+  function spawnFoods(){
+    const used = occupied();
+    const placedWords = state.foods.map(f => f.word);
+    const available = WORDS.filter(w => !state.box.includes(w) && !placedWords.includes(w));
+    while(state.foods.length < 3 && available.length){
+      let x, y, tries = 0;
+      do {
+        x = 1 + Math.floor(Math.random() * (COLS - 2));
+        y = 1 + Math.floor(Math.random() * (ROWS - 2));
+        tries++;
+      } while(used.has(x + "," + y) && tries < 300);
+      if(tries >= 300) break;
+      used.add(x + "," + y);
+      const wi = Math.floor(Math.random() * available.length);
+      state.foods.push({x, y, word: available.splice(wi, 1)[0], born: performance.now()});
+    }
+  }
+
+  /* ---------- 词盒 ---------- */
+  function renderBox(){
+    slotsEl.innerHTML = "";
+    for(let i = 0; i < 8; i++){
+      const el = document.createElement("div");
+      el.className = "slot";
+      if(state.box[i]){
+        el.classList.add("filled");
+        el.textContent = state.box[i];
+      } else {
+        el.textContent = "·";
+      }
+      slotsEl.appendChild(el);
+    }
+    const filled = slotsEl.querySelectorAll(".slot.filled");
+    if(filled.length){
+      const last = filled[filled.length - 1];
+      last.classList.add("fresh");
+    }
+    updateMeta();
+  }
+
+  /* ---------- 单步 ---------- */
+  function step(){
+    if(state.queue.length){
+      const d = state.queue.shift();
+      if(d.x !== -state.dir.x || d.y !== -state.dir.y) state.dir = d;
+    }
+    const head = state.snake[0];
+    const nx = head.x + state.dir.x;
+    const ny = head.y + state.dir.y;
+
+    if(nx < 0 || ny < 0 || nx >= COLS || ny >= ROWS){
+      gameOver("撞到了画框");
+      return;
+    }
+    const willGrow = state.grow > 0;
+    for(let i = 0; i < state.snake.length; i++){
+      if(!willGrow && i === state.snake.length - 1) continue;
+      if(state.snake[i].x === nx && state.snake[i].y === ny){
+        gameOver("咬到了自己");
+        return;
+      }
+    }
+
+    state.snake.unshift({x:nx, y:ny});
+    if(state.grow > 0) state.grow--; else state.snake.pop();
+
+    const fi = state.foods.findIndex(f => f.x === nx && f.y === ny);
+    if(fi >= 0){
+      const food = state.foods[fi];
+      state.foods.splice(fi, 1);
+      state.box.push(food.word);
+      state.grow += 1;
+      state.speed = Math.max(80, state.speed - 5);
+      spawnFoods();
+      renderBox();
+      updateMeta();
+      if(state.box.length === 8){
+        beginPoem();
+        return;
+      }
+    }
+    updateMeta();
+  }
+
+  /* ---------- 绘制 ---------- */
+  function roundRect(c, x, y, w, h, r){
+    const rr = Math.min(r, w/2, h/2);
+    c.beginPath();
+    c.moveTo(x+rr, y);
+    c.arcTo(x+w, y, x+w, y+h, rr);
+    c.arcTo(x+w, y+h, x, y+h, rr);
+    c.arcTo(x, y+h, x, y, rr);
+    c.arcTo(x, y, x+w, y, rr);
+    c.closePath();
+  }
+
+  function draw(time){
+    const size = state.view;
+    const cs = cell();
+    ctx.clearRect(0, 0, size, size);
+
+    // 棋盘底
+    const bg = ctx.createLinearGradient(0, 0, size, size);
+    bg.addColorStop(0, "#0B1A24");
+    bg.addColorStop(1, "#08131B");
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, size, size);
+
+    // 网格点
+    ctx.fillStyle = "rgba(211,177,115,.10)";
+    for(let y = 1; y < ROWS; y++){
+      for(let x = 1; x < COLS; x++){
+        ctx.beginPath();
+        ctx.arc(x * cs, y * cs, 1, 0, Math.PI*2);
+        ctx.fill();
+      }
+    }
+
+    // 词块
+    for(const f of state.foods){
+      const pulse = reduceMotion ? 0 : Math.sin((time - f.born) / 520) * 0.02;
+      const pad = cs * 0.08;
+      const x = f.x * cs + pad, y = f.y * cs + pad;
+      const w = cs - pad * 2, h = w;
+      ctx.save();
+      ctx.translate(x + w/2, y + h/2);
+      ctx.scale(1 + pulse, 1 + pulse);
+      ctx.translate(-(x + w/2), -(y + h/2));
+
+      ctx.shadowColor = "rgba(211,177,115,.45)";
+      ctx.shadowBlur = cs * 0.5;
+      ctx.fillStyle = "rgba(10,22,31,.92)";
+      roundRect(ctx, x, y, w, h, cs * 0.18);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      ctx.strokeStyle = "rgba(211,177,115,.62)";
+      ctx.lineWidth = Math.max(1, cs * 0.035);
+      roundRect(ctx, x, y, w, h, cs * 0.18);
+      ctx.stroke();
+
+      ctx.fillStyle = "#F1E8D6";
+      ctx.font = `600 ${cs * 0.4}px ${SERIF}`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      const word = f.word;
+      if(word.length > 1){
+        ctx.fillText(word[0], x + w/2, y + h/2 - cs * 0.2);
+        ctx.fillText(word[1], x + w/2, y + h/2 + cs * 0.2);
+      } else {
+        ctx.fillText(word, x + w/2, y + h/2);
+      }
+      ctx.restore();
+    }
+
+    // 蛇
+    const body = state.snake;
+    if(body.length){
+      const cx = s => s.x * cs + cs/2;
+      const cy = s => s.y * cs + cs/2;
+
+      ctx.save();
+      ctx.lineJoin = "round";
+      ctx.lineCap = "round";
+      ctx.lineWidth = cs * 0.66;
+      const grad = ctx.createLinearGradient(cx(body[0]), cy(body[0]), cx(body[body.length-1]), cy(body[body.length-1]));
+      grad.addColorStop(0, "#A7D2B7");
+      grad.addColorStop(0.55, "#6FA189");
+      grad.addColorStop(1, "#3E6B58");
+      ctx.strokeStyle = grad;
+      ctx.shadowColor = "rgba(127,168,139,.35)";
+      ctx.shadowBlur = cs * 0.9;
+      ctx.beginPath();
+      ctx.moveTo(cx(body[0]), cy(body[0]));
+      for(let i = 1; i < body.length; i++) ctx.lineTo(cx(body[i]), cy(body[i]));
+      ctx.stroke();
+      ctx.restore();
+
+      // 头
+      const h = body[0];
+      ctx.fillStyle = "#B6DCC4";
+      ctx.beginPath();
+      ctx.arc(cx(h), cy(h), cs * 0.31, 0, Math.PI*2);
+      ctx.fill();
+
+      // 眼
+      const ex = state.dir.x, ey = state.dir.y;
+      const px = -ey, py = ex;
+      ctx.fillStyle = "#0A1A22";
+      const er = Math.max(1.4, cs * 0.055);
+      const off = cs * 0.13;
+      ctx.beginPath();
+      ctx.arc(cx(h) + ex*off + px*off, cy(h) + ey*off + py*off, er, 0, Math.PI*2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(cx(h) + ex*off - px*off, cy(h) + ey*off - py*off, er, 0, Math.PI*2);
+      ctx.fill();
+    }
+  }
+
+  /* ---------- 主循环 ---------- */
+  let lastTime = 0, acc = 0;
+  function frame(t){
+    if(!lastTime) lastTime = t;
+    const dt = Math.min(120, t - lastTime);
+    lastTime = t;
+
+    if(state.phase === "playing" && !state.frozen){
+      acc += dt;
+      while(acc >= state.speed && state.phase === "playing"){
+        acc -= state.speed;
+        step();
+      }
+    }
+    draw(t);
+    requestAnimationFrame(frame);
+  }
+
+  /* ---------- 输入 ---------- */
+  const DIRS = {
+    up:    {x:0,y:-1},
+    down:  {x:0,y:1},
+    left:  {x:-1,y:0},
+    right: {x:1,y:0}
+  };
+
+  function pushDir(name){
+    if(state.phase !== "playing" || state.frozen) return;
+    const d = DIRS[name];
+    if(!d) return;
+    const lastDir = state.queue.length ? state.queue[state.queue.length-1] : state.dir;
+    if(d.x === -lastDir.x && d.y === -lastDir.y) return;
+    if(d.x === lastDir.x && d.y === lastDir.y) return;
+    if(state.queue.length < 3) state.queue.push(d);
+  }
+
+  const KEYMAP = {
+    ArrowUp:"up", ArrowDown:"down", ArrowLeft:"left", ArrowRight:"right",
+    w:"up", s:"down", a:"left", d:"right",
+    W:"up", S:"down", A:"left", D:"right"
+  };
+
+  window.addEventListener("keydown", e => {
+    if(e.key === "Escape" && !settingsPanel.hidden){
+      e.preventDefault();
+      setSettings(false);
+      return;
+    }
+    if(e.key === "[" || e.key === "]"){
+      e.preventDefault();
+      cycleSpeed(e.key === "]" ? 1 : -1);
+      return;
+    }
+    if(state.frozen){
+      if(KEYMAP[e.key] || e.key === " ") e.preventDefault();
+      return;
+    }
+    if(KEYMAP[e.key]){
+      e.preventDefault();
+      pushDir(KEYMAP[e.key]);
+    } else if(e.key === " "){
+      e.preventDefault();
+      if(state.phase === "playing" || state.phase === "paused") togglePause();
+      else if(state.phase === "ready" || state.phase === "over") startGame();
+    }
+  }, {passive:false});
+
+  document.querySelector(".pad").addEventListener("click", e => {
+    const btn = e.target.closest("button");
+    if(!btn) return;
+    if(btn.dataset.act === "settings"){ setSettings(settingsPanel.hidden); return; }
+    if(btn.dataset.act === "pause"){ if(!state.frozen) togglePause(); return; }
+    if(btn.dataset.dir) pushDir(btn.dataset.dir);
+  });
+
+  settingsPanel.addEventListener("click", e => {
+    const btn = e.target.closest("button");
+    if(!btn) return;
+    if(btn.dataset.speed) setBaseSpeed(Number(btn.dataset.speed));
+  });
+
+  let swipeStart = null;
+  canvas.addEventListener("pointerdown", e => {
+    swipeStart = {x:e.clientX, y:e.clientY};
+    canvas.setPointerCapture?.(e.pointerId);
+  });
+  canvas.addEventListener("pointerup", e => {
+    if(!swipeStart) return;
+    const dx = e.clientX - swipeStart.x;
+    const dy = e.clientY - swipeStart.y;
+    swipeStart = null;
+    if(Math.abs(dx) < 22 && Math.abs(dy) < 22) return;
+    if(Math.abs(dx) > Math.abs(dy)) pushDir(dx > 0 ? "right" : "left");
+    else pushDir(dy > 0 ? "down" : "up");
+  });
+
+  overlay.addEventListener("click", e => {
+    const btn = e.target.closest("button[data-act]");
+    if(!btn) return;
+    if(btn.dataset.act === "start") startGame();
+    if(btn.dataset.act === "resume") togglePause();
+  });
+
+  /* ---------- 写诗 ---------- */
+  const REMIX_HINTS = [
+    "这一版写得更冷、更静，像夜里的一封信。",
+    "这一版写得更暖、更亮，像清晨刚醒来的院子。",
+    "这一版只写眼睛看见的，不要出现“我”。",
+    "这一版多用短句，节奏更快。",
+    "这一版写成一个老人对晚辈说话的口吻。",
+    "这一版把它写成一个没有结尾的梦。"
+  ];
+
+  function pick(arr){ return arr[Math.floor(Math.random() * arr.length)]; }
+
+  function buildPrompt(words, hint){
+    return [
+      "你是一位中文诗人。请只用下面八个词作为核心意象，写一首现代中文小诗。",
+      "八个词：" + words.join("、"),
+      hint ? "额外的要求：" + hint : "",
+      "规则：",
+      "1. 共四行，每行 8 到 14 个字。",
+      "2. 八个词都要出现，可以化用，但不能遗漏。",
+      "3. 要有具体的画面，避免空泛抒情和成语堆砌。",
+      "4. 标题 3 到 5 个字。",
+      "5. 只输出 JSON，不要代码块，不要解释，格式如下：",
+      '{"title":"标题","lines":["第一行","第二行","第三行","第四行"],"imageHint":"一句话描述画面与主色调"}'
+    ].filter(Boolean).join("\n");
+  }
+
+  const POEM_TITLES = ["拾词记", "夜行帖", "未寄", "山中来信", "灯下", "风过处", "旧地址", "一个人的潮汐"];
+
+  const LINE_PATTERNS = [
+    (a, b) => `${a}落在${b}上`,
+    (a, b) => `${a}之外，还是${b}`,
+    (a, b) => `有人在${a}里等${b}`,
+    (a, b) => `从${a}到${b}，只差一盏灯`,
+    (a, b) => `${a}亮了，${b}还没有`,
+    (a, b) => `我数过${a}，也数过${b}`,
+    (a, b) => `${a}之后，${b}就安静了`,
+    (a, b) => `把${a}折进${b}里`,
+    (a, b) => `${a}还在，${b}已经走远`,
+    (a, b) => `你说的${a}，其实是${b}`,
+    (a, b) => `${a}是${b}留下的回声`,
+    (a, b) => `${b}的背面写着一句${a}`,
+    (a, b) => `等${a}落下来，${b}就醒了`,
+    (a, b) => `${a}很轻，${b}也很轻`,
+    (a, b) => `${a}穿过${b}，没有声音`,
+    (a, b) => `如果${a}也会想起${b}`
+  ];
+
+  function shuffle(arr){
+    for(let i = arr.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      const t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+    }
+    return arr;
+  }
+
+  function fallbackPoem(words){
+    const w = shuffle(words.slice());
+    const patterns = shuffle(LINE_PATTERNS.slice()).slice(0, 4);
+    const lines = patterns.map((fn, i) => fn(w[i * 2], w[i * 2 + 1]));
+    const title = Math.random() < 0.55 ? pick(POEM_TITLES) : `${w[0]}${w[1]}`;
+    return {title, lines, imageHint: "", source: "local"};
+  }
+
+  function parsePoem(raw, words){
+    let s = String(raw || "").trim();
+    s = s.replace(/^```(?:json)?\s*/i, "").replace(/```$/,"").trim();
+    const a = s.indexOf("{"), b = s.lastIndexOf("}");
+    if(a >= 0 && b > a){
+      try {
+        const o = JSON.parse(s.slice(a, b + 1));
+        const lines = Array.isArray(o.lines)
+          ? o.lines.map(x => String(x).trim()).filter(Boolean).slice(0, 6)
+          : [];
+        if(o.title && lines.length >= 2){
+          return {title: String(o.title).slice(0, 8), lines, imageHint: String(o.imageHint || ""), source: "llm"};
+        }
+      } catch(err){ /* 落回纯文本解析 */ }
+    }
+    const lines = s.split(/\n+/)
+      .map(t => t.replace(/^\s*[\d一二三四五六]+[、.．)）]?\s*/, "").trim())
+      .filter(t => t.length > 1 && !/^[{}[\]]/.test(t))
+      .slice(0, 6);
+    if(lines.length >= 2){
+      return {title: pick(["夜行帖", "未寄", "山中来信", "拾词记"]), lines, imageHint: "", source: "llm"};
+    }
+    return fallbackPoem(words);
+  }
+
+  function withTimeout(promise, ms){
+    return new Promise((resolve, reject) => {
+      const timer = setTimeout(() => reject(new Error("timeout")), ms);
+      promise.then(v => { clearTimeout(timer); resolve(v); }, e => { clearTimeout(timer); reject(e); });
+    });
+  }
+
+  function canAskLLM(){
+    return !!(window.cowork && typeof window.cowork.askClaude === "function");
+  }
+
+  async function composePoem(words, hint){
+    const prompt = buildPrompt(words, hint);
+    if(canAskLLM()){
+      try {
+        const res = await withTimeout(
+          window.cowork.askClaude(prompt, [words.join("、"), hint || "第一版"]),
+          20000
+        );
+        if(res && !res.isError){
+          const text = res.text || (res.content && res.content[0] && res.content[0].text);
+          if(text){
+            const poem = parsePoem(text, words);
+            if(poem.source === "llm") return poem;
+          }
+        }
+      } catch(err){ /* 静默降级 */ }
+    }
+    return fallbackPoem(words);
+  }
+
+  function renderPoem(poem, words){
+    poemTitleEl.textContent = poem.title;
+    poemLinesEl.innerHTML = "";
+    poem.lines.forEach(line => {
+      const p = document.createElement("p");
+      p.textContent = line;
+      poemLinesEl.appendChild(p);
+    });
+    poemWordsEl.textContent = words.join(" · ");
+  }
+
+  /* ---------- 画面 ---------- */
+  const PALETTES = {
+    night: {
+      sky:["#07111C", "#22425E"], glow:"#E9EFF5",
+      ridge:["#355C78", "#2A4C64", "#1F3B50", "#152C3D", "#0B1B27"],
+      stars:true, water:"#07131E", accent:"#D9B26A"
+    },
+    jade: {
+      sky:["#0B1A17", "#33594A"], glow:"#F3E8C9",
+      ridge:["#47745F", "#3A6352", "#2D5143", "#203C32", "#122520"],
+      stars:false, water:"#091714", accent:"#D9B26A"
+    },
+    dusk: {
+      sky:["#170E11", "#63352B"], glow:"#F5BC7C",
+      ridge:["#7A4738", "#653B2F", "#4E2C24", "#371D18", "#20100D"],
+      stars:false, water:"#160D0C", accent:"#E6A85C"
+    },
+    snow: {
+      sky:["#0D151C", "#415665"], glow:"#ECF3F7",
+      ridge:["#587080", "#4A5F6D", "#3A4C58", "#2A3843", "#1A2530"],
+      stars:true, water:"#0C141A", accent:"#CFE0E8"
+    }
+  };
+
+  function shade(hex, f){
+    const h = hex.replace("#", "");
+    const n = parseInt(h.length === 3 ? h.split("").map(c => c + c).join("") : h, 16);
+    const r = Math.min(255, Math.round(((n >> 16) & 255) * f));
+    const g = Math.min(255, Math.round(((n >> 8) & 255) * f));
+    const b = Math.min(255, Math.round((n & 255) * f));
+    return `rgb(${r},${g},${b})`;
+  }
+
+  function ridgePoints(rnd, W, count){
+    const pts = [];
+    for(let i = 0; i <= count; i++) pts.push({x: i * W / count, y: 0.14 + rnd() * 0.86});
+    for(let i = 1; i < pts.length - 1; i++){
+      pts[i].y = pts[i-1].y * 0.24 + pts[i].y * 0.52 + pts[i+1].y * 0.24;
+    }
+    return pts;
+  }
+
+  function ridgeYAt(ridge, x, W){
+    const pts = ridge.pts;
+    const step = W / (pts.length - 1);
+    const i = Math.min(pts.length - 2, Math.max(0, Math.floor(x / step)));
+    const t = (x - pts[i].x) / step;
+    const y = pts[i].y + (pts[i+1].y - pts[i].y) * t;
+    return ridge.baseY - y * ridge.amp;
+  }
+
+  function traceRidge(c, ridge, W, H, close){
+    const {pts, baseY, amp} = ridge;
+    c.moveTo(0, baseY - pts[0].y * amp);
+    for(let i = 1; i < pts.length; i++){
+      const p = pts[i], q = pts[i-1];
+      c.quadraticCurveTo(q.x, baseY - q.y * amp, (q.x + p.x) / 2, baseY - ((q.y + p.y) / 2) * amp);
+    }
+    c.lineTo(W, baseY - pts[pts.length-1].y * amp);
+    if(close){
+      c.lineTo(W, H);
+      c.lineTo(0, H);
+      c.closePath();
+    }
+  }
+
+  function drawPine(c, x, y, h, color){
+    c.save();
+    c.fillStyle = color;
+    c.fillRect(x - Math.max(1, h * 0.022), y - h * 0.42, Math.max(2, h * 0.045), h * 0.42);
+    for(let i = 0; i < 3; i++){
+      const ty = y - h * (0.34 + i * 0.2);
+      const w = h * (0.24 - i * 0.05);
+      c.beginPath();
+      c.moveTo(x, ty - h * 0.3);
+      c.lineTo(x - w, ty);
+      c.lineTo(x + w, ty);
+      c.closePath();
+      c.fill();
+    }
+    c.restore();
+  }
+
+  function pickPalette(poem, words){
+    const text = (poem.title + poem.lines.join("") + (poem.imageHint || "") + words.join("")).toLowerCase();
+    const scores = {night:0, jade:0, dusk:0, snow:0};
+    const add = (keys, name, weight) => {
+      keys.forEach(k => { if(text.includes(k)) scores[name] += weight; });
+    };
+    add(["月","夜","星","蓝","海","潮","井","雾","银","鲸"], "night", 2);
+    add(["春","草","苔","竹","薄荷","松","林","麦","叶","青","绿","鸽"], "jade", 2);
+    add(["火","焰","红","秋","灯","暮","铁","铜","橙","夕","霞","锈"], "dusk", 2);
+    add(["雪","霜","冰","冬","白","冷"], "snow", 3);
+    let best = "night", bestScore = -1;
+    Object.keys(scores).forEach(k => {
+      if(scores[k] > bestScore){ bestScore = scores[k]; best = k; }
+    });
+    return PALETTES[best];
+  }
+
+  function hashStr(s){
+    let h = 2166136261;
+    for(let i = 0; i < s.length; i++){
+      h ^= s.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return h >>> 0;
+  }
+
+  function mulberry32(a){
+    return function(){
+      a |= 0; a = a + 0x6D2B79F5 | 0;
+      let t = Math.imul(a ^ a >>> 15, 1 | a);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+
+  function hexA(hex, a){
+    const h = hex.replace("#", "");
+    const n = parseInt(h.length === 3 ? h.split("").map(c => c + c).join("") : h, 16);
+    const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+    return `rgba(${r},${g},${b},${a})`;
+  }
+
+  function vText(c, str, x, y, size, gap, color, weight, shadow){
+    c.save();
+    c.fillStyle = color;
+    c.font = `${weight || 400} ${size}px ${SERIF}`;
+    c.textAlign = "center";
+    c.textBaseline = "middle";
+    if(shadow){
+      c.shadowColor = "rgba(0,0,0,.55)";
+      c.shadowBlur = 18;
+      c.shadowOffsetY = 2;
+    }
+    let cy = y;
+    for(const ch of str){
+      c.fillText(ch, x, cy);
+      cy += size * gap;
+    }
+    c.restore();
+    return cy;
+  }
+
+  function drawArt(target, poem){
+    const W = 900, H = 1200;
+    target.width = W;
+    target.height = H;
+    const c = target.getContext("2d");
+    const rnd = mulberry32(hashStr(poem.title + "|" + poem.lines.join("|")));
+    const pal = pickPalette(poem, []);
+
+    // 天空
+    const sky = c.createLinearGradient(0, 0, 0, H * 0.82);
+    sky.addColorStop(0, pal.sky[0]);
+    sky.addColorStop(1, pal.sky[1]);
+    c.fillStyle = sky;
+    c.fillRect(0, 0, W, H);
+
+    // 星
+    if(pal.stars){
+      for(let i = 0; i < 240; i++){
+        const x = rnd() * W;
+        const y = rnd() * H * 0.62;
+        const r = rnd() * 1.7 + 0.3;
+        c.globalAlpha = 0.15 + rnd() * 0.6;
+        c.fillStyle = "#EAF1F6";
+        c.beginPath();
+        c.arc(x, y, r, 0, Math.PI * 2);
+        c.fill();
+      }
+      c.globalAlpha = 1;
+    }
+
+    // 月轮 / 日光
+    const gx = W * (0.28 + rnd() * 0.3);
+    const gy = H * (0.15 + rnd() * 0.08);
+    const gr = 88 + rnd() * 42;
+    const halo = c.createRadialGradient(gx, gy, gr * 0.2, gx, gy, gr * 3.2);
+    halo.addColorStop(0, hexA(pal.glow, 0.5));
+    halo.addColorStop(0.35, hexA(pal.glow, 0.14));
+    halo.addColorStop(1, hexA(pal.glow, 0));
+    c.fillStyle = halo;
+    c.beginPath();
+    c.arc(gx, gy, gr * 3.2, 0, Math.PI * 2);
+    c.fill();
+
+    const moon = c.createRadialGradient(gx - gr * 0.28, gy - gr * 0.3, gr * 0.08, gx, gy, gr * 1.02);
+    moon.addColorStop(0, "#FFFDF6");
+    moon.addColorStop(0.62, pal.glow);
+    moon.addColorStop(1, shade(pal.glow, 0.86));
+    c.globalAlpha = 0.96;
+    c.fillStyle = moon;
+    c.beginPath();
+    c.arc(gx, gy, gr, 0, Math.PI * 2);
+    c.fill();
+    c.globalAlpha = 1;
+
+    // 地平线附近的暖光
+    const hz = c.createLinearGradient(0, H * 0.34, 0, H * 0.63);
+    hz.addColorStop(0, hexA(pal.accent, 0));
+    hz.addColorStop(0.62, hexA(pal.accent, 0.1));
+    hz.addColorStop(1, hexA(pal.accent, 0));
+    c.fillStyle = hz;
+    c.fillRect(0, H * 0.34, W, H * 0.29);
+
+    // 远山层叠
+    const ridges = [];
+    for(let layer = 0; layer < pal.ridge.length; layer++){
+      const baseY = H * (0.44 + layer * 0.075);
+      const amp = 90 + layer * 32;
+      const pts = ridgePoints(rnd, W, 5 + layer * 2);
+      const ridge = {pts, baseY, amp};
+
+      const g = c.createLinearGradient(0, baseY - amp, 0, Math.min(H, baseY + 90));
+      g.addColorStop(0, pal.ridge[layer]);
+      g.addColorStop(1, shade(pal.ridge[layer], 0.72));
+      c.fillStyle = g;
+      c.beginPath();
+      traceRidge(c, ridge, W, H, true);
+      c.fill();
+
+      // 山脊微光
+      c.strokeStyle = hexA(pal.glow, 0.09 + layer * 0.02);
+      c.lineWidth = 1.5;
+      c.beginPath();
+      traceRidge(c, ridge, W, H, false);
+      c.stroke();
+
+      // 层间薄雾
+      const mistY = baseY + 14;
+      const mg = c.createLinearGradient(0, mistY - 56, 0, mistY + 56);
+      mg.addColorStop(0, hexA(pal.glow, 0));
+      mg.addColorStop(0.5, hexA(pal.glow, 0.07 + layer * 0.02));
+      mg.addColorStop(1, hexA(pal.glow, 0));
+      c.fillStyle = mg;
+      c.fillRect(0, mistY - 56, W, 112);
+
+      ridges.push(ridge);
+    }
+
+    // 近山松树
+    const nearRidge = ridges[ridges.length - 1];
+    const pineCount = 3 + Math.floor(rnd() * 3);
+    for(let i = 0; i < pineCount; i++){
+      const px = W * (0.06 + rnd() * 0.55);
+      const py = ridgeYAt(nearRidge, px, W) + 6;
+      drawPine(c, px, py, 34 + rnd() * 36, hexA("#0A1714", 0.92));
+    }
+
+    // 岩石皴笔
+    for(let i = 0; i < 170; i++){
+      const ridge = ridges[2 + Math.floor(rnd() * 3)];
+      const x = rnd() * W;
+      const y = ridgeYAt(ridge, x, W) + 8 + rnd() * 130;
+      const dark = rnd() > 0.45;
+      c.strokeStyle = dark ? "rgba(0,0,0,.10)" : hexA(pal.glow, 0.05);
+      c.lineWidth = 0.9 + rnd() * 0.9;
+      c.beginPath();
+      c.moveTo(x, y);
+      c.lineTo(x + (rnd() * 16 - 8), y + 8 + rnd() * 18);
+      c.stroke();
+    }
+
+    // 水面
+    const wy = H * 0.803;
+    const wg = c.createLinearGradient(0, wy, 0, H);
+    wg.addColorStop(0, shade(pal.water, 1.45));
+    wg.addColorStop(0.3, pal.water);
+    wg.addColorStop(1, shade(pal.water, 0.68));
+    c.fillStyle = wg;
+    c.fillRect(0, wy, W, H - wy);
+
+    // 水面倒影：月光的碎影
+    c.save();
+    c.globalCompositeOperation = "lighter";
+    for(let i = 0; i < 26; i++){
+      const t = i / 26;
+      const y = wy + 6 + t * (H - wy) * 0.84;
+      const spread = gr * (0.45 + t * 1.7);
+      const a = 0.15 * (1 - t) + 0.015;
+      const g2 = c.createLinearGradient(gx - spread, y, gx + spread, y);
+      g2.addColorStop(0, hexA(pal.glow, 0));
+      g2.addColorStop(0.5, hexA(pal.glow, a));
+      g2.addColorStop(1, hexA(pal.glow, 0));
+      c.fillStyle = g2;
+      c.fillRect(gx - spread, y, spread * 2, 1.5 + t * 3);
+    }
+    c.restore();
+
+    // 水纹
+    for(let i = 0; i < 90; i++){
+      const y = wy + 10 + Math.pow(rnd(), 0.7) * (H - wy - 24);
+      const nearGlow = Math.max(0, 1 - Math.abs(rnd() * W - gx) / (W * 0.5));
+      const len = 30 + rnd() * 190;
+      const x = rnd() * (W - len);
+      c.strokeStyle = hexA(pal.glow, 0.025 + rnd() * 0.06 + nearGlow * 0.04);
+      c.lineWidth = 0.8 + rnd() * 1.6;
+      c.beginPath();
+      c.moveTo(x, y);
+      c.lineTo(x + len, y);
+      c.stroke();
+    }
+
+    // 水天交界
+    for(let i = 0; i < 9; i++){
+      const x = rnd() * W;
+      const len = 40 + rnd() * 120;
+      c.strokeStyle = hexA(pal.glow, 0.12 + rnd() * 0.1);
+      c.lineWidth = 1.2;
+      c.beginPath();
+      c.moveTo(x, wy);
+      c.lineTo(Math.min(W, x + len), wy);
+      c.stroke();
+    }
+
+    // 飞鸟
+    const birdCount = 3 + Math.floor(rnd() * 4);
+    c.strokeStyle = hexA(pal.glow, 0.5);
+    c.lineWidth = 2;
+    c.lineCap = "round";
+    for(let i = 0; i < birdCount; i++){
+      const bx = W * (0.12 + rnd() * 0.5);
+      const by = H * (0.18 + rnd() * 0.2);
+      const s = 9 + rnd() * 13;
+      c.beginPath();
+      c.moveTo(bx - s, by);
+      c.quadraticCurveTo(bx - s * 0.4, by - s * 0.55, bx, by);
+      c.quadraticCurveTo(bx + s * 0.4, by - s * 0.55, bx + s, by);
+      c.stroke();
+    }
+
+    // 纸张颗粒
+    for(let i = 0; i < 3200; i++){
+      const light = rnd() > 0.5;
+      c.fillStyle = light ? "rgba(255,255,255,.035)" : "rgba(0,0,0,.05)";
+      c.fillRect(rnd() * W, rnd() * H, 1.3, 1.3);
+    }
+
+    // 暗角
+    const vg = c.createRadialGradient(W/2, H/2, H * 0.32, W/2, H/2, H * 0.86);
+    vg.addColorStop(0, "rgba(0,0,0,0)");
+    vg.addColorStop(1, "rgba(0,0,0,.46)");
+    c.fillStyle = vg;
+    c.fillRect(0, 0, W, H);
+
+    // 内框
+    c.strokeStyle = "rgba(211,177,115,.28)";
+    c.lineWidth = 1.4;
+    c.strokeRect(26, 26, W - 52, H - 52);
+
+    // 题名
+    vText(c, poem.title, W - 76, 104, 50, 1.26, pal.glow, "600", true);
+
+    // 印章
+    const seal = 76;
+    c.save();
+    c.translate(W - 76, 104 + poem.title.length * 50 * 1.26 + 66);
+    c.rotate(-0.05);
+    c.fillStyle = "#B8402C";
+    c.fillRect(-seal/2, -seal/2, seal, seal);
+    c.strokeStyle = "rgba(245,233,214,.55)";
+    c.lineWidth = 1;
+    c.strokeRect(-seal/2 + 5, -seal/2 + 5, seal - 10, seal - 10);
+    c.fillStyle = "#F5E9D6";
+    c.font = `600 25px ${SERIF}`;
+    c.textAlign = "center";
+    c.textBaseline = "middle";
+    c.fillText("拾", 0, -16);
+    c.fillText("词", 0, 18);
+    c.restore();
+  }
+
+  /* ---------- 流程编排 ---------- */
+  let working = false;
+
+  function setStatus(text){
+    if(!text){
+      poemStatus.hidden = true;
+      return;
+    }
+    poemStatus.hidden = false;
+    poemStatusText.textContent = text;
+  }
+
+  async function runPoem(skipAsk){
+    if(working) return;
+    working = true;
+    remixBtn.disabled = true;
+    saveBtn.disabled = true;
+
+    const words = state.captured.slice();
+    poemPanel.hidden = false;
+    poemBody.hidden = true;
+    artCanvas.classList.remove("show");
+    poemWordsEl.textContent = words.join(" · ");
+    setStatus("正在写诗…");
+
+    try {
+      await new Promise(r => setTimeout(r, 420));
+
+      const hint = pick(REMIX_HINTS);
+      const poem = skipAsk ? fallbackPoem(words) : await composePoem(words, hint);
+      state.poem = poem;
+
+      renderPoem(poem, words);
+      poemBody.hidden = false;
+      setStatus("正在作画…");
+      remixBtn.disabled = true;
+
+      await new Promise(r => setTimeout(r, 620));
+      drawArt(artCanvas, poem);
+
+      requestAnimationFrame(() => artCanvas.classList.add("show"));
+      setStatus("");
+      if(state.phase === "writing"){
+        overlay.innerHTML = `
+          <p class="kicker">八字成诗</p>
+          <h2>诗已成</h2>
+          <p>向下读诗。想换一种写法，就重新混一次。</p>`;
+      }
+      if(poem.source !== "local"){
+        footnote.innerHTML = "画面由诗中的意象与色调生成，每次重混都会重画。";
+      } else if(canAskLLM()){
+        footnote.innerHTML = "这次由<b>本地诗稿</b>代笔——内置模型没有回应。画面仍按诗中的意象与色调生成。";
+      } else {
+        footnote.innerHTML = "公开版由<b>本地诗稿引擎</b>写成，八个词全部用上；画面按诗中的意象与色调生成。";
+      }
+
+      if(!reduceMotion){
+        poemPanel.scrollIntoView({behavior:"smooth", block:"start"});
+      } else {
+        poemPanel.scrollIntoView({block:"start"});
+      }
+    } finally {
+      remixBtn.disabled = false;
+      saveBtn.disabled = false;
+      working = false;
+    }
+  }
+
+  function beginPoem(){
+    state.phase = "writing";
+    state.captured = state.box.slice();
+    overlay.hidden = false;
+    overlay.innerHTML = `
+      <p class="kicker">集齐八个</p>
+      <h2>正在写诗</h2>
+      <p>${state.captured.join(" · ")}</p>`;
+    runPoem(false);
+  }
+
+  function remix(){
+    if(working || state.captured.length < 8) return;
+    artCanvas.classList.remove("show");
+    runPoem(false);
+  }
+
+  function saveArt(){
+    try {
+      const a = document.createElement("a");
+      a.download = `拾词-${state.poem ? state.poem.title : "诗意图"}.png`;
+      a.href = artCanvas.toDataURL("image/png");
+      a.click();
+    } catch(err){
+      footnote.textContent = "这幅画没能存下来，可以试试截屏。";
+    }
+  }
+
+  function restart(){
+    poemPanel.hidden = true;
+    poemBody.hidden = true;
+    artCanvas.classList.remove("show");
+    setStatus("");
+    resetGame();
+    window.scrollTo({top:0, behavior: reduceMotion ? "auto" : "smooth"});
+  }
+
+  remixBtn.addEventListener("click", remix);
+  saveBtn.addEventListener("click", saveArt);
+  againBtn.addEventListener("click", restart);
+
+  /* ---------- 启动 ---------- */
+  resize();
+  resetGame();
+  syncSpeedUI();
+  requestAnimationFrame(frame);
+
+  window.addEventListener("resize", () => setTimeout(resize, 30));
+
+})();
+</script>
+</body>
+</html>
