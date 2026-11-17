@@ -3,16 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>拾词 · 八字成诗，一诗成画</title>
+<title>贪词蛇 · shici-snake</title>
 <style>
   :root{
     color-scheme: dark;
-    --ink:#08121A;
-    --ink-soft:#10202B;
+    --ink:#07121A;
+    --ink-2:#0D1D28;
     --silk:#EDE4D0;
-    --muted:rgba(237,228,208,.52);
+    --muted:rgba(237,228,208,.54);
     --gold:#D3B173;
-    --gold-dim:rgba(211,177,115,.28);
+    --gold-dim:rgba(211,177,115,.26);
     --cinnabar:#B8402C;
     --jade:#7FA88B;
     --serif:"Songti SC","Noto Serif SC","Source Han Serif SC","STSong","SimSun",serif;
@@ -20,7 +20,7 @@
   }
   *{box-sizing:border-box}
   [hidden]{display:none !important}
-  html,body{margin:0}
+  html,body{margin:0;min-height:100%}
   body{
     background:
       radial-gradient(120% 80% at 50% -12%, #182B3D 0%, rgba(24,43,61,0) 55%),
@@ -28,7 +28,6 @@
       var(--ink);
     color:var(--silk);
     font-family:var(--sans);
-    min-height:100vh;
     -webkit-font-smoothing:antialiased;
   }
   body::before{
@@ -38,35 +37,104 @@
       repeating-linear-gradient(90deg, rgba(237,228,208,.022) 0 1px, rgba(0,0,0,0) 1px 3px);
     mix-blend-mode:soft-light;
   }
-  main{position:relative;z-index:1;max-width:540px;margin:0 auto;padding:24px 16px 64px}
+  .view{position:relative;z-index:1;min-height:100vh}
 
-  .masthead{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
-  .masthead h1{
-    margin:0;font-family:var(--serif);font-weight:600;font-size:30px;letter-spacing:.18em;
-    line-height:1.1;color:var(--silk);
+  /* ---------------- 主界面 ---------------- */
+  #viewHome{display:flex;align-items:center;justify-content:center;padding:24px 18px 36px;overflow:hidden}
+  .home-ink{position:absolute;inset:0;width:100%;height:100%;opacity:.62;pointer-events:none}
+  .home-scroll{
+    position:relative;width:min(470px,100%);
+    padding:26px 24px 22px;border-radius:5px;
+    border:1px solid rgba(211,177,115,.3);
+    background:linear-gradient(180deg,rgba(13,27,37,.9),rgba(7,16,23,.94));
+    box-shadow:0 50px 100px -60px #000, inset 0 1px 0 rgba(237,228,208,.06);
+    animation:rise .9s cubic-bezier(.2,.9,.25,1) both;
   }
-  .masthead p{
-    margin:8px 0 0;font-size:12px;letter-spacing:.16em;color:var(--muted);
+  .home-scroll::before{
+    content:"";position:absolute;inset:7px;border:1px solid rgba(211,177,115,.12);
+    border-radius:3px;pointer-events:none;
+  }
+  @keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+
+  .brand{display:block}
+  .brand-en{
+    margin:0 0 10px;text-align:right;
+    font-family:var(--serif);font-size:11px;letter-spacing:.4em;color:var(--muted);
+  }
+  .brand-row{
+    display:flex;flex-direction:row-reverse;align-items:flex-start;
+    justify-content:flex-start;gap:14px;
+  }
+  .title-col{display:flex;flex-direction:column;align-items:center;gap:12px}
+  .vtitle{
+    writing-mode:vertical-rl;margin:0;font-family:var(--serif);font-weight:600;
+    font-size:44px;letter-spacing:.18em;line-height:1.04;color:var(--silk);
+  }
+  .vsub{
+    writing-mode:vertical-rl;margin:12px 0 0;font-family:var(--serif);
+    font-size:12px;letter-spacing:.4em;color:rgba(237,228,208,.46);
   }
   .seal{
-    flex:none;width:50px;height:50px;border-radius:3px;background:var(--cinnabar);
+    width:40px;height:40px;border-radius:3px;background:var(--cinnabar);
     display:flex;flex-direction:column;align-items:center;justify-content:center;
-    font-family:var(--serif);font-size:19px;line-height:1.05;color:#F6EAD8;
+    font-family:var(--serif);font-size:11.5px;line-height:1.18;color:#F6EAD8;
     transform:rotate(-4deg);
-    box-shadow:inset 0 0 0 1px rgba(255,255,255,.16), 0 8px 22px -10px #000;
-    letter-spacing:0;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.18), 0 10px 26px -12px #000;
   }
+
+  .menu{display:flex;flex-direction:column;gap:8px;margin-top:22px}
+  .menu-btn{
+    position:relative;font:inherit;text-align:left;cursor:pointer;
+    padding:12px 14px 12px 16px;border-radius:4px;
+    border:1px solid rgba(211,177,115,.22);
+    background:rgba(237,228,208,.015);color:rgba(237,228,208,.86);
+    font-family:var(--serif);font-size:17px;letter-spacing:.18em;
+    transition:background .2s,border-color .2s,color .2s,padding-left .2s;
+  }
+  .menu-btn::before{
+    content:"";position:absolute;left:0;top:0;bottom:0;width:2px;
+    background:var(--gold);transform:scaleY(0);transform-origin:center;
+    transition:transform .22s ease;
+  }
+  .menu-btn:hover{background:rgba(211,177,115,.1);border-color:rgba(211,177,115,.5);color:var(--silk);padding-left:22px}
+  .menu-btn:hover::before{transform:scaleY(.72)}
+  .menu-btn:focus-visible{outline:2px solid #E8CF9B;outline-offset:2px}
+  .menu-btn small{
+    display:block;margin-top:5px;font-family:var(--sans);font-size:11px;
+    letter-spacing:.06em;color:var(--muted);
+  }
+  .home-foot{
+    margin:22px 0 0;font-size:11px;letter-spacing:.26em;color:rgba(237,228,208,.4);
+  }
+
+  /* ---------------- 通用 ---------------- */
+  main{position:relative;z-index:1;max-width:540px;margin:0 auto;padding:20px 16px 64px}
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .back-btn{
+    font:inherit;font-size:12px;letter-spacing:.12em;color:var(--muted);
+    background:none;border:0;padding:6px 0;cursor:pointer;
+  }
+  .back-btn:hover{color:var(--silk)}
+  .chip{
+    font-family:var(--serif);font-size:11px;letter-spacing:.14em;color:var(--gold);
+    border:1px solid rgba(211,177,115,.34);border-radius:99px;padding:4px 10px;
+  }
+  .masthead h1{
+    margin:10px 0 0;font-family:var(--serif);font-weight:600;font-size:26px;
+    letter-spacing:.16em;line-height:1.1;
+  }
+  .masthead p{margin:6px 0 0;font-size:11px;letter-spacing:.16em;color:var(--muted)}
 
   .meta{
     display:flex;justify-content:space-between;align-items:baseline;gap:12px;
-    margin-top:20px;padding-bottom:8px;
+    margin-top:16px;padding-bottom:8px;
     border-bottom:1px solid var(--gold-dim);
     font-size:11px;letter-spacing:.18em;color:var(--muted);
   }
   .meta b{font-family:var(--serif);font-weight:600;font-size:15px;letter-spacing:.06em;color:var(--silk)}
 
   .stage{
-    position:relative;margin-top:14px;padding:7px;border-radius:10px;
+    position:relative;margin-top:12px;padding:7px;border-radius:10px;
     border:1px solid var(--gold-dim);
     background:linear-gradient(180deg,rgba(20,37,49,.92),rgba(9,19,27,.94));
     box-shadow:0 30px 70px -40px #000, inset 0 1px 0 rgba(237,228,208,.06);
@@ -74,13 +142,14 @@
   #game{display:block;width:100%;aspect-ratio:1/1;border-radius:6px;background:#0A1721;touch-action:none}
 
   .overlay{
-    position:absolute;inset:7px;border-radius:6px;padding:22px;
-    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;
-    text-align:center;background:rgba(6,13,19,.82);backdrop-filter:blur(3px);
+    position:absolute;inset:7px;border-radius:6px;padding:20px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:11px;
+    text-align:center;background:rgba(6,13,19,.84);backdrop-filter:blur(3px);
   }
   .overlay .kicker{font-size:11px;letter-spacing:.3em;color:var(--gold);margin:0}
-  .overlay h2{margin:0;font-family:var(--serif);font-weight:600;font-size:24px;letter-spacing:.08em;color:var(--silk)}
+  .overlay h2{margin:0;font-family:var(--serif);font-weight:600;font-size:24px;letter-spacing:.08em}
   .overlay p{margin:0;max-width:30ch;font-size:13px;line-height:1.8;color:var(--muted)}
+  .overlay .row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:4px}
 
   .pad{
     display:grid;grid-template-columns:repeat(3,54px);grid-template-rows:repeat(2,44px);
@@ -92,36 +161,12 @@
     cursor:pointer;transition:background .15s,color .15s;touch-action:none;
   }
   .pad button:hover{background:rgba(211,177,115,.12);color:var(--silk)}
-  .pad button:active{background:rgba(211,177,115,.2)}
   .pad button[data-dir="up"]{grid-column:2;grid-row:1}
   .pad button[data-dir="left"]{grid-column:1;grid-row:2}
   .pad button[data-dir="down"]{grid-column:2;grid-row:2}
   .pad button[data-dir="right"]{grid-column:3;grid-row:2}
   .pad .pause{grid-column:1;grid-row:1;font-size:11px;letter-spacing:.12em}
   .pad .settings-btn{grid-column:3;grid-row:1;font-size:11px;letter-spacing:.12em}
-
-  .settings{
-    margin-top:14px;padding:14px 16px 16px;border-radius:8px;
-    border:1px solid var(--gold-dim);background:rgba(16,30,41,.72);
-  }
-  .settings-head{
-    display:flex;justify-content:space-between;align-items:center;
-    font-size:11px;letter-spacing:.22em;color:var(--muted);
-  }
-  .settings-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;flex-wrap:wrap}
-  .settings-label{font-size:12px;letter-spacing:.1em;color:rgba(237,228,208,.66)}
-  .seg{display:flex;border:1px solid rgba(211,177,115,.32);border-radius:5px;overflow:hidden}
-  .seg button{
-    font:inherit;font-size:12px;letter-spacing:.06em;padding:8px 13px;
-    background:transparent;border:0;border-right:1px solid rgba(211,177,115,.16);
-    color:rgba(237,228,208,.6);cursor:pointer;transition:background .15s,color .15s;
-  }
-  .seg button:last-child{border-right:0}
-  .seg button:hover{background:rgba(211,177,115,.1);color:var(--silk)}
-  .seg button[aria-pressed="true"]{background:rgba(211,177,115,.9);color:#11212B;font-weight:600}
-  .seg button:focus-visible{outline:2px solid #E8CF9B;outline-offset:-2px}
-  .settings-note{margin:12px 0 0;font-size:11px;line-height:1.7;letter-spacing:.04em;color:rgba(237,228,208,.42)}
-  .settings-note b{font-weight:500;color:rgba(237,228,208,.62)}
 
   .box{margin-top:22px}
   .box-head{
@@ -132,10 +177,11 @@
   .slots{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
   .slot{
     height:42px;border:1px dashed rgba(211,177,115,.2);border-radius:4px;
-    display:flex;align-items:center;justify-content:center;
+    display:flex;align-items:center;justify-content:center;padding:0 6px;
     font-family:var(--serif);font-size:15px;letter-spacing:.08em;color:rgba(237,228,208,.22);
-    transition:border-color .3s, color .3s, background .3s;
+    transition:border-color .3s,color .3s,background .3s;
   }
+  .slot.en{font-family:Georgia,"Times New Roman",serif;font-size:12px;letter-spacing:.04em}
   .slot.filled{
     border-style:solid;border-color:rgba(211,177,115,.5);color:var(--silk);
     background:linear-gradient(180deg,rgba(211,177,115,.14),rgba(211,177,115,.03));
@@ -147,8 +193,9 @@
     100%{transform:scale(1)}
   }
 
+  /* ---------------- 诗 ---------------- */
   .poem-panel{
-    margin-top:28px;padding:20px 18px 22px;border-radius:10px;
+    margin-top:26px;padding:20px 18px 22px;border-radius:10px;
     border:1px solid var(--gold-dim);
     background:linear-gradient(180deg,rgba(17,31,42,.94),rgba(9,17,24,.94));
     box-shadow:0 30px 70px -50px #000;
@@ -161,30 +208,24 @@
   .panel-head .tag::before{content:"";width:9px;height:9px;background:var(--cinnabar);border-radius:1px}
   .panel-head .words{
     font-family:var(--serif);font-size:12px;letter-spacing:.06em;color:var(--muted);
-    max-width:62%;text-align:right;
+    max-width:66%;text-align:right;
   }
-
-  .status{
-    margin:16px 0 0;font-size:13px;letter-spacing:.08em;color:var(--muted);
-    display:flex;align-items:center;gap:10px;
-  }
-  .status .dot{
-    width:6px;height:6px;border-radius:50%;background:var(--gold);
-    animation:breathe 1.1s ease-in-out infinite;
-  }
+  .status{margin:16px 0 0;font-size:13px;letter-spacing:.08em;color:var(--muted);display:flex;align-items:center;gap:10px}
+  .status .dot{width:6px;height:6px;border-radius:50%;background:var(--gold);animation:breathe 1.1s ease-in-out infinite}
   @keyframes breathe{0%,100%{opacity:.25;transform:scale(.8)}50%{opacity:1;transform:scale(1.15)}}
 
   .poem-wrap{
     display:flex;flex-direction:row-reverse;align-items:flex-start;justify-content:flex-start;
-    gap:24px;margin-top:18px;min-height:210px;overflow-x:auto;padding:4px 2px 6px;
+    gap:24px;margin-top:18px;min-height:200px;overflow-x:auto;padding:4px 2px 6px;
   }
-  .poem-title{
-    writing-mode:vertical-rl;font-family:var(--serif);font-weight:600;
-    font-size:23px;letter-spacing:.28em;color:var(--gold);padding-top:2px;
-  }
+  .poem-title{writing-mode:vertical-rl;font-family:var(--serif);font-weight:600;font-size:23px;letter-spacing:.28em;color:var(--gold)}
   .poem-lines{writing-mode:vertical-rl;font-family:var(--serif);font-size:18px;line-height:1.95;letter-spacing:.16em;color:#F1E8D6}
   .poem-lines p{margin:0 14px 0 0}
   .poem-lines p:last-child{margin-right:0}
+  .poem-wrap.latin{flex-direction:column;gap:10px}
+  .poem-wrap.latin .poem-title{writing-mode:horizontal-tb;font-size:22px;letter-spacing:.14em}
+  .poem-wrap.latin .poem-lines{writing-mode:horizontal-tb;font-size:17px;line-height:2;letter-spacing:.08em}
+  .poem-wrap.latin .poem-lines p{margin:0}
 
   .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
   .btn{
@@ -198,121 +239,471 @@
   .btn.primary{background:var(--gold);border-color:var(--gold);color:#11212B;font-weight:600}
   .btn.primary:hover{background:#E2C489;border-color:#E2C489}
   .btn:disabled{opacity:.42;cursor:default;transform:none}
-  .restart-btn{min-width:136px;margin-top:2px}
+  .restart-btn{min-width:136px}
 
-  .art-frame{
-    margin-top:20px;border-radius:8px;overflow:hidden;
-    border:1px solid rgba(211,177,115,.28);
-    box-shadow:0 40px 80px -50px #000;
-  }
-  #art{
-    display:block;width:100%;height:auto;
-    opacity:0;transform:scale(1.025);
-    transition:opacity .9s ease, transform 1.3s cubic-bezier(.16,.84,.3,1);
-  }
+  .art-frame{margin-top:20px;border-radius:8px;overflow:hidden;border:1px solid rgba(211,177,115,.28);box-shadow:0 40px 80px -50px #000}
+  .art-frame canvas{display:block;width:100%;height:auto;background:#0A1721}
+  #art{display:block;width:100%;height:auto;opacity:0;transform:scale(1.025);transition:opacity .9s ease,transform 1.3s cubic-bezier(.16,.84,.3,1)}
   #art.show{opacity:1;transform:scale(1)}
-
-  .footnote{
-    margin:12px 0 0;font-size:11px;line-height:1.8;letter-spacing:.05em;color:rgba(237,228,208,.42);
-  }
+  .footnote{margin:12px 0 0;font-size:11px;line-height:1.8;letter-spacing:.05em;color:rgba(237,228,208,.42)}
   .footnote b{font-weight:500;color:rgba(237,228,208,.6)}
 
+  /* ---------------- 模式选择 ---------------- */
+  .mode-sheet{
+    position:absolute;inset:7px;border-radius:6px;padding:20px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;
+    background:rgba(6,13,19,.93);backdrop-filter:blur(4px);text-align:center;
+  }
+  .mode-sheet h2{margin:0;font-family:var(--serif);font-size:23px;letter-spacing:.14em}
+  .mode-sheet > p{margin:0;font-size:12px;letter-spacing:.1em;color:var(--muted)}
+  .mode-list{display:flex;flex-direction:column;gap:10px;width:min(300px,100%);margin-top:6px}
+  .mode-card{
+    text-align:left;cursor:pointer;font:inherit;padding:14px 16px;border-radius:6px;
+    border:1px solid rgba(211,177,115,.3);background:rgba(237,228,208,.02);color:var(--silk);
+    transition:background .18s,border-color .18s;
+  }
+  .mode-card:hover{background:rgba(211,177,115,.12);border-color:rgba(211,177,115,.6)}
+  .mode-card b{display:block;font-family:var(--serif);font-size:17px;letter-spacing:.14em;font-weight:600}
+  .mode-card span{display:block;margin-top:6px;font-size:12px;line-height:1.7;color:var(--muted)}
+
+  /* ---------------- 设置 ---------------- */
+  .sheet{
+    margin-top:16px;padding:20px 18px 22px;border-radius:10px;
+    border:1px solid var(--gold-dim);
+    background:linear-gradient(180deg,rgba(17,31,42,.94),rgba(9,17,24,.94));
+  }
+  .sheet h2{margin:0 0 4px;font-family:var(--serif);font-size:22px;letter-spacing:.14em;font-weight:600}
+  .sheet .hint{margin:0 0 18px;font-size:12px;line-height:1.8;color:var(--muted)}
+  .field{padding:14px 0;border-top:1px solid rgba(211,177,115,.14)}
+  .field:first-of-type{border-top:0}
+  .field-top{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+  .field-top span{font-family:var(--serif);font-size:15px;letter-spacing:.1em}
+  .field-top b{font-family:var(--serif);font-size:13px;color:var(--gold);font-weight:600;letter-spacing:.05em}
+  .field p{margin:6px 0 0;font-size:11px;line-height:1.7;color:rgba(237,228,208,.42)}
+  input[type="range"]{
+    -webkit-appearance:none;appearance:none;width:100%;height:26px;margin-top:8px;
+    background:transparent;cursor:pointer;
+  }
+  input[type="range"]::-webkit-slider-runnable-track{
+    height:2px;border-radius:2px;
+    background:linear-gradient(90deg,rgba(211,177,115,.9) var(--p,50%),rgba(211,177,115,.18) var(--p,50%));
+  }
+  input[type="range"]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:15px;height:15px;border-radius:50%;margin-top:-6.5px;
+    background:var(--gold);border:2px solid #0B1A24;box-shadow:0 0 0 1px rgba(211,177,115,.6);
+  }
+  input[type="range"]::-moz-range-track{height:2px;background:rgba(211,177,115,.2)}
+  input[type="range"]::-moz-range-progress{height:2px;background:rgba(211,177,115,.9)}
+  input[type="range"]::-moz-range-thumb{width:13px;height:13px;border:2px solid #0B1A24;border-radius:50%;background:var(--gold)}
+  .seg{display:flex;border:1px solid rgba(211,177,115,.32);border-radius:5px;overflow:hidden;margin-top:10px}
+  .seg button{
+    flex:1;font:inherit;font-size:12px;letter-spacing:.06em;padding:9px 0;
+    background:transparent;border:0;border-right:1px solid rgba(211,177,115,.16);
+    color:rgba(237,228,208,.6);cursor:pointer;transition:background .15s,color .15s;
+  }
+  .seg button:last-child{border-right:0}
+  .seg button:hover{background:rgba(211,177,115,.1);color:var(--silk)}
+  .seg button[aria-pressed="true"]{background:rgba(211,177,115,.9);color:#11212B;font-weight:600}
+
+  /* ---------------- 收藏 ---------------- */
+  .coll-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:18px}
+  .coll-card{
+    cursor:pointer;text-align:left;font:inherit;color:inherit;
+    border:1px solid rgba(211,177,115,.24);border-radius:8px;overflow:hidden;
+    background:rgba(237,228,208,.02);padding:0;
+    transition:border-color .2s,transform .12s;
+  }
+  .coll-card:hover{border-color:rgba(211,177,115,.55);transform:translateY(-2px)}
+  .coll-card canvas{display:block;width:100%;height:auto;background:#0A1721}
+  .coll-card .cap{padding:10px 11px 12px}
+  .coll-card .cap b{display:block;font-family:var(--serif);font-size:15px;letter-spacing:.1em;font-weight:600}
+  .coll-card .cap span{display:block;margin-top:5px;font-size:10.5px;line-height:1.6;color:var(--muted)}
+  .empty{
+    margin-top:22px;padding:34px 20px;border:1px dashed rgba(211,177,115,.24);border-radius:10px;
+    text-align:center;font-size:13px;line-height:2;color:var(--muted);
+  }
+  .empty b{display:block;font-family:var(--serif);font-size:17px;letter-spacing:.12em;color:var(--silk);margin-bottom:6px}
+
+  .detail{
+    position:fixed;inset:0;z-index:20;display:flex;align-items:flex-start;justify-content:center;
+    padding:19px 14px 30px;overflow-y:auto;background:rgba(4,9,13,.86);backdrop-filter:blur(6px);
+  }
+  .detail-inner{
+    width:min(520px,100%);border-radius:10px;padding:18px 16px 20px;
+    border:1px solid rgba(211,177,115,.3);
+    background:linear-gradient(180deg,rgba(17,31,42,.98),rgba(8,16,23,.98));
+  }
+  .detail-top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:4px}
+  .detail-top span{font-size:11px;letter-spacing:.16em;color:var(--muted)}
+
+  /* ---------------- 提示 ---------------- */
+  .toast{
+    position:fixed;left:50%;bottom:26px;transform:translate(-50%,16px);
+    padding:10px 18px;border-radius:99px;font-size:12.5px;letter-spacing:.08em;
+    background:rgba(211,177,115,.94);color:#11212B;font-weight:600;
+    opacity:0;pointer-events:none;transition:opacity .3s,transform .3s;z-index:30;
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+
+  @media (max-width:380px){
+    .vtitle{font-size:42px}
+    .coll-grid{grid-template-columns:1fr}
+  }
   @media (prefers-reduced-motion: reduce){
     *{animation-duration:.001ms !important;transition-duration:.001ms !important}
+    .home-scroll{animation:none}
   }
 </style>
-<meta name="description" content="一款会写诗的水墨贪吃蛇：吃下八个中文词，得到一首诗，再得一幅画。">
-<meta property="og:title" content="拾词 · 八字成诗，一诗成画">
-<meta property="og:description" content="贪吃蛇吃下八个中文词，自动写一首诗，并把诗画成一幅水墨画。可重混。">
+<meta name="description" content="贪词蛇：贪吃蛇吃下八个词，得一首诗，成一幅画。支持经典与中英混合两种模式。">
+<meta property="og:title" content="贪词蛇 · shici-snake">
+<meta property="og:description" content="中国风贪吃蛇：吃下八个词，自动写一首诗，并把诗画成一幅水墨画。">
 <meta property="og:type" content="website">
-<meta name="theme-color" content="#08121A">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Crect%20width='64'%20height='64'%20rx='6'%20fill='%23B8402C'/%3E%3Ctext%20x='32'%20y='45'%20font-size='36'%20text-anchor='middle'%20fill='%23F6EAD8'%20font-family='serif'%3E%E6%8B%BE%3C/text%3E%3C/svg%3E">
+<meta name="theme-color" content="#07121A">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Crect%20width='64'%20height='64'%20rx='6'%20fill='%23B8402C'/%3E%3Ctext%20x='32'%20y='45'%20font-size='34'%20text-anchor='middle'%20fill='%23F6EAD8'%20font-family='serif'%3E%E8%B4%AA%3C/text%3E%3C/svg%3E">
+<meta name="description" content="贪词蛇：贪吃蛇吃下八个词，得一首诗，成一幅画。支持经典与中英混合两种模式。">
+<meta property="og:title" content="贪词蛇 · shici-snake">
+<meta property="og:description" content="中国风贪吃蛇：吃下八个词，自动写一首诗，并把诗画成一幅水墨画。">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#07121A">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Crect%20width='64'%20height='64'%20rx='6'%20fill='%23B8402C'/%3E%3Ctext%20x='32'%20y='45'%20font-size='34'%20text-anchor='middle'%20fill='%23F6EAD8'%20font-family='serif'%3E%E8%B4%AA%3C/text%3E%3C/svg%3E">
 </head>
 <body>
-<main>
-  <header class="masthead">
-    <div>
-      <h1>拾词</h1>
+
+<!-- ================= 主界面 ================= -->
+<section class="view" id="viewHome">
+  <canvas class="home-ink" id="homeInk" aria-hidden="true"></canvas>
+  <div class="home-scroll">
+    <div class="brand">
+      <p class="brand-en">shici-snake</p>
+      <div class="brand-row">
+        <div class="title-col">
+          <h1 class="vtitle">贪词蛇</h1>
+          <div class="seal" aria-hidden="true"><span>贪</span><span>词</span><span>蛇</span></div>
+        </div>
+        <p class="vsub">吃词成诗作画</p>
+      </div>
+    </div>
+
+    <nav class="menu" aria-label="主菜单">
+      <button class="menu-btn" data-nav="play">开始游戏<small>经典模式或中英混合模式</small></button>
+      <button class="menu-btn" data-nav="restart">重新开始<small>沿用上次的模式，直接开一局</small></button>
+      <button class="menu-btn" data-nav="settings">系统设置<small>背景音与词语音效</small></button>
+      <button class="menu-btn" data-nav="collection">你的收藏<small>诗词与画作的汇总</small></button>
+    </nav>
+
+    <p class="home-foot">吃八个词　得一首诗　成一幅画</p>
+  </div>
+</section>
+
+<!-- ================= 游戏 ================= -->
+<section class="view" id="viewPlay" hidden>
+  <main>
+    <div class="topbar">
+      <button class="back-btn" data-nav="home">← 返回主界面</button>
+      <span class="chip" id="modeChip">经典模式</span>
+    </div>
+
+    <div class="masthead">
+      <h1>贪词蛇</h1>
       <p>吃下八个词　得到一首诗　再得一幅画</p>
     </div>
-    <div class="seal" aria-hidden="true"><span>拾</span><span>词</span></div>
-  </header>
 
-  <div class="meta">
-    <span>词盒 <b id="countLabel">0</b> / 8</span>
-    <span>身长 <b id="lengthLabel">3</b></span>
-  </div>
-
-  <div class="stage">
-    <canvas id="game" aria-label="贪吃蛇棋盘"></canvas>
-    <div class="overlay" id="overlay">
-      <p class="kicker">八字成诗</p>
-      <h2>吃下八个词</h2>
-      <p>方向键或 WASD 移动，空格暂停。每吃一个词，它就落进下面的盒子——集满八个，开始写诗。</p>
-      <button class="btn primary" data-act="start">开始</button>
+    <div class="meta">
+      <span>词盒 <b id="countLabel">0</b> / 8</span>
+      <span>身长 <b id="lengthLabel">3</b></span>
     </div>
-  </div>
 
-  <div class="pad" role="group" aria-label="方向键">
-    <button class="pause" data-act="pause">暂停</button>
-    <button class="settings-btn" data-act="settings" aria-expanded="false" aria-controls="settingsPanel">设置</button>
-    <button data-dir="up" aria-label="上">↑</button>
-    <button data-dir="left" aria-label="左">←</button>
-    <button data-dir="down" aria-label="下">↓</button>
-    <button data-dir="right" aria-label="右">→</button>
-  </div>
+    <div class="stage">
+      <canvas id="game" aria-label="贪词蛇棋盘"></canvas>
 
-  <section class="settings" id="settingsPanel" hidden aria-label="设置">
-    <div class="settings-head">
-      <span>设置</span>
-    </div>
-    <div class="settings-row">
-      <span class="settings-label">起始速度</span>
-      <div class="seg" id="speedSeg" role="group" aria-label="起始速度">
-        <button data-speed="210">慢</button>
-        <button data-speed="168">标准</button>
-        <button data-speed="130">快</button>
-        <button data-speed="100">极快</button>
+      <div class="overlay" id="overlay">
+        <p class="kicker">八字成诗</p>
+        <h2>选一种玩法</h2>
+        <p>经典模式只收中文词，混合模式里会混入英文单词。</p>
+        <div class="row">
+          <button class="btn primary" data-start="classic">经典模式</button>
+          <button class="btn" data-start="mixed">混合模式</button>
+        </div>
       </div>
     </div>
-    <p class="settings-note">每吃一个词仍会略微加速，这里调的是开局速度。快捷键：<b>[</b> 减慢，<b>]</b> 加快，<b>Esc</b> 收起。</p>
-  </section>
 
-  <section class="box" aria-label="词盒">
-    <div class="box-head"><span>词盒</span><span id="boxHint">还差 8 个</span></div>
-    <div class="slots" id="slots"></div>
-  </section>
-
-  <section class="poem-panel" id="poemPanel" hidden aria-live="polite">
-    <div class="panel-head">
-      <span class="tag">诗成</span>
-      <span class="words" id="poemWords"></span>
+    <div class="pad" role="group" aria-label="方向键">
+      <button class="pause" data-act="pause">暂停</button>
+      <button class="settings-btn" data-act="settings">设置</button>
+      <button data-dir="up" aria-label="上">↑</button>
+      <button data-dir="left" aria-label="左">←</button>
+      <button data-dir="down" aria-label="下">↓</button>
+      <button data-dir="right" aria-label="右">→</button>
     </div>
-    <p class="status" id="poemStatus"><span class="dot"></span><span id="poemStatusText">正在写诗…</span></p>
 
-    <div id="poemBody" hidden>
-      <div class="poem-wrap">
-        <div class="poem-title" id="poemTitle"></div>
-        <div class="poem-lines" id="poemLines"></div>
+    <section class="box" aria-label="词盒">
+      <div class="box-head"><span>词盒</span><span id="boxHint">还差 8 个</span></div>
+      <div class="slots" id="slots"></div>
+    </section>
+
+    <section class="poem-panel" id="poemPanel" hidden aria-live="polite">
+      <div class="panel-head">
+        <span class="tag">诗成</span>
+        <span class="words" id="poemWords"></span>
       </div>
-      <div class="actions">
-        <button class="btn primary" id="remixBtn">重新混这首诗</button>
-        <button class="btn" id="saveBtn">保存画作</button>
-        <button class="btn" id="againBtn">再玩一局</button>
+      <p class="status" id="poemStatus"><span class="dot"></span><span id="poemStatusText">正在写诗…</span></p>
+
+      <div id="poemBody" hidden>
+        <div class="poem-wrap">
+          <div class="poem-title" id="poemTitle"></div>
+          <div class="poem-lines" id="poemLines"></div>
+        </div>
+        <div class="actions">
+          <button class="btn primary" id="remixBtn">重新混这首诗</button>
+          <button class="btn" id="saveBtn">保存画作</button>
+          <button class="btn" id="againBtn">再玩一局</button>
+        </div>
+        <div class="art-frame"><canvas id="art" aria-label="由诗生成的画面"></canvas></div>
+        <p class="footnote" id="footnote">画面由诗中的意象与色调生成，每次重混都会重画。</p>
       </div>
-      <div class="art-frame"><canvas id="art" aria-label="由诗生成的画面"></canvas></div>
-      <p class="footnote" id="footnote">画面由诗中的意象与色调生成，每次重混都会重画。</p>
+    </section>
+  </main>
+</section>
+
+<!-- ================= 系统设置 ================= -->
+<section class="view" id="viewSettings" hidden>
+  <main>
+    <div class="topbar">
+      <button class="back-btn" data-nav="settings-back">← 返回</button>
+      <span class="chip">系统设置</span>
     </div>
-  </section>
-</main>
+    <div class="sheet">
+      <h2>声音与手感</h2>
+      <p class="hint">背景音是一段循环的古琴式五声音阶，词语音效在吃到词时响起。音量都会记住。</p>
+
+      <div class="field">
+        <div class="field-top"><span>背景音</span><b id="musicVal">40</b></div>
+        <input type="range" id="musicVol" min="0" max="100" step="1" value="40" aria-label="背景音音量">
+        <p>拉到 0 即为静音。</p>
+      </div>
+
+      <div class="field">
+        <div class="field-top"><span>词语音效</span><b id="sfxVal">70</b></div>
+        <input type="range" id="sfxVol" min="0" max="100" step="1" value="70" aria-label="词语音效音量">
+        <p>吃到词、诗成时的提示音。</p>
+      </div>
+
+      <div class="field">
+        <div class="field-top"><span>起始速度</span><b id="speedVal">标准</b></div>
+        <div class="seg" id="speedSeg" role="group" aria-label="起始速度">
+          <button data-speed="210">慢</button>
+          <button data-speed="168">标准</button>
+          <button data-speed="130">快</button>
+          <button data-speed="100">极快</button>
+        </div>
+        <p>每吃一个词仍会略微加速，这里调的是开局速度。</p>
+      </div>
+    </div>
+  </main>
+</section>
+
+<!-- ================= 收藏 ================= -->
+<section class="view" id="viewCollection" hidden>
+  <main>
+    <div class="topbar">
+      <button class="back-btn" data-nav="home">← 返回主界面</button>
+      <span class="chip" id="collCount">0 首</span>
+    </div>
+    <div class="masthead">
+      <h1>你的收藏</h1>
+      <p>每次成诗都会自动收进这里</p>
+    </div>
+    <div id="collGrid" class="coll-grid"></div>
+    <div id="collEmpty" class="empty" hidden>
+      <b>词录还空着</b>
+      玩一局，集满八个词，诗和画就会留在这里。
+    </div>
+  </main>
+</section>
+
+<!-- ================= 收藏详情 ================= -->
+<div class="detail" id="detail" hidden role="dialog" aria-modal="true" aria-label="诗词详情">
+  <div class="detail-inner">
+    <div class="detail-top">
+      <span id="detailDate"></span>
+      <button class="back-btn" id="detailClose">关闭 ✕</button>
+    </div>
+    <div class="poem-wrap" id="detailPoemWrap">
+      <div class="poem-title" id="detailTitle"></div>
+      <div class="poem-lines" id="detailLines"></div>
+    </div>
+    <p class="footnote" id="detailWords"></p>
+    <div class="art-frame"><canvas id="detailArt"></canvas></div>
+    <div class="actions">
+      <button class="btn primary" id="detailSave">保存画作</button>
+      <button class="btn" id="detailDelete">从收藏中删除</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
 
 <script>
 (function(){
   "use strict";
 
-  /* ---------- 词库 ---------- */
-  const WORDS = [
+  /* ================= 基础 ================= */
+  const $ = id => document.getElementById(id);
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+  const SERIF = '"Songti SC","Noto Serif SC","Source Han Serif SC","STSong","SimSun",serif';
+  const EN_SERIF = 'Georgia,"Times New Roman",serif';
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function shuffle(arr){
+    for(let i = arr.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      const t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+    }
+    return arr;
+  }
+
+  /* 存储：应用外的沙箱可能禁用 localStorage，这里做了兜底 */
+  const store = (function(){
+    let ok = false;
+    try { localStorage.setItem("__sc", "1"); localStorage.removeItem("__sc"); ok = true; } catch(e){ ok = false; }
+    const mem = {};
+    return {
+      get(key, def){
+        try { if(ok){ const raw = localStorage.getItem(key); if(raw !== null) return JSON.parse(raw); } } catch(e){}
+        return Object.prototype.hasOwnProperty.call(mem, key) ? mem[key] : def;
+      },
+      set(key, val){
+        mem[key] = val;
+        try { if(ok) localStorage.setItem(key, JSON.stringify(val)); } catch(e){}
+      }
+    };
+  })();
+
+  /* ================= 音效 ================= */
+  const audio = (function(){
+    let ctx = null, musicGain = null, sfxGain = null, timer = null;
+    const vol = { music: 0.4, sfx: 0.7 };
+    const SCALE = [0, 2, 4, 7, 9];
+    const ROOT = 146.83;
+
+    function freq(i){
+      const oct = Math.floor(i / 5), deg = ((i % 5) + 5) % 5;
+      return ROOT * Math.pow(2, (SCALE[deg] + 12 * oct) / 12);
+    }
+
+    function ensure(){
+      if(!ctx){
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if(!AC) return false;
+        try {
+          ctx = new AC();
+          musicGain = ctx.createGain();
+          sfxGain = ctx.createGain();
+          musicGain.connect(ctx.destination);
+          sfxGain.connect(ctx.destination);
+        } catch(e){ ctx = null; return false; }
+      }
+      if(ctx.state === "suspended"){ try { ctx.resume(); } catch(e){} }
+      applyGains();
+      return true;
+    }
+
+    function applyGains(){
+      if(!ctx) return;
+      musicGain.gain.value = vol.music * 0.34;
+      sfxGain.gain.value = vol.sfx * 0.55;
+    }
+
+    function pluck(f, t, dur, dest, level, type){
+      if(!ctx) return;
+      const o = ctx.createOscillator(), o2 = ctx.createOscillator();
+      const g = ctx.createGain(), g2 = ctx.createGain(), fl = ctx.createBiquadFilter();
+      o.type = type || "triangle";
+      o.frequency.value = f;
+      o2.type = "sine";
+      o2.frequency.value = f * 2.005;
+      fl.type = "lowpass";
+      fl.frequency.value = 2200;
+      g2.gain.value = 0.22;
+      o.connect(g);
+      o2.connect(g2);
+      g2.connect(g);
+      g.connect(fl);
+      fl.connect(dest);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(level, t + 0.015);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.start(t); o2.start(t);
+      o.stop(t + dur + 0.05); o2.stop(t + dur + 0.05);
+    }
+
+    function drone(f, t, dur){
+      if(!ctx) return;
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = "sine";
+      o.frequency.value = f;
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.linearRampToValueAtTime(0.09, t + 1.6);
+      g.gain.linearRampToValueAtTime(0.0001, t + dur);
+      o.connect(g);
+      g.connect(musicGain);
+      o.start(t);
+      o.stop(t + dur + 0.1);
+    }
+
+    function schedule(){
+      if(!ctx) return;
+      const t0 = ctx.currentTime + 0.06;
+      const n = 3 + Math.floor(Math.random() * 3);
+      let t = t0;
+      for(let i = 0; i < n; i++){
+        pluck(freq(Math.floor(Math.random() * 11)), t, 2.4 + Math.random(), musicGain, 0.16, "triangle");
+        t += 0.6 + Math.random() * 0.8;
+      }
+      drone(freq(0) / 2, t0, 6.2);
+      timer = setTimeout(schedule, 5000);
+    }
+
+    function beginMusic(){
+      if(timer || !ensure() || vol.music <= 0) return;
+      schedule();
+    }
+
+    function stopMusic(){
+      if(timer){ clearTimeout(timer); timer = null; }
+    }
+
+    return {
+      unlock(){ if(ensure()) beginMusic(); },
+      setMusic(v){ vol.music = clamp(v, 0, 1); applyGains(); if(vol.music > 0 && ctx) beginMusic(); else if(vol.music <= 0) stopMusic(); },
+      setSfx(v){ vol.sfx = clamp(v, 0, 1); applyGains(); },
+      eat(step){
+        if(vol.sfx <= 0 || !ensure()) return;
+        const t = ctx.currentTime + 0.01;
+        const f = freq(3 + (step % 5));
+        pluck(f, t, 0.34, sfxGain, 0.42, "triangle");
+        pluck(f * 2, t + 0.02, 0.16, sfxGain, 0.16, "sine");
+      },
+      chord(){
+        if(vol.sfx <= 0 || !ensure()) return;
+        const t = ctx.currentTime + 0.02;
+        [2, 4, 5].forEach((n, i) => pluck(freq(n), t + i * 0.11, 1.7, sfxGain, 0.3, "triangle"));
+      },
+      ui(){
+        if(vol.sfx <= 0 || !ensure()) return;
+        pluck(freq(2), ctx.currentTime, 0.1, sfxGain, 0.12, "sine");
+      },
+      get(){ return { music: vol.music, sfx: vol.sfx }; }
+    };
+  })();
+
+  const savedVol = store.get("shici.vol", { music: 40, sfx: 70 });
+  audio.setMusic((savedVol.music || 0) / 100);
+  audio.setSfx((savedVol.sfx != null ? savedVol.sfx : 70) / 100);
+
+  /* ================= 词库 ================= */
+  const CN_WORDS = [
     "月光","屋顶","薄荷","铁轨","白鸽","潮汐","灯塔","麦田",
     "旧信","风铃","雪原","深井","纸鸢","荒原","铜锁","蝉鸣",
     "渡口","星图","沙漏","木屋","蓝鲸","山雾","铁锈","银针",
@@ -320,58 +711,101 @@
     "春汛","松脂","石阶","药香","雨巷","竹影","街灯","雪松",
     "铁皮","湖心","旧钟","沙丘","电线","春分","荒岛","钟摆"
   ];
+  const EN_WORDS = [
+    "moon","roof","mint","rail","dove","tide","beacon","wheat",
+    "letter","chime","snow","well","kite","waste","lock","cicada",
+    "ferry","orbit","glass","cabin","whale","mist","rust","needle",
+    "moss","dusk","ember","china","river","ash","pine","stone",
+    "herb","rain","shadow","lamp","island","clock","wire","spring"
+  ];
 
   const COLS = 16, ROWS = 16;
   const DPR = Math.min(window.devicePixelRatio || 1, 2);
-  const SERIF = '"Songti SC","Noto Serif SC","Source Han Serif SC","STSong","SimSun",serif';
-  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  const canvas = document.getElementById("game");
+  /* ================= 视图 ================= */
+  const views = {
+    home: $("viewHome"),
+    play: $("viewPlay"),
+    settings: $("viewSettings"),
+    collection: $("viewCollection")
+  };
+
+  function showView(name){
+    Object.keys(views).forEach(k => { views[k].hidden = (k !== name); });
+    if(name === "play"){ requestAnimationFrame(() => { resize(); drawHomeInk(); }); }
+    if(name === "collection") renderCollection();
+    if(name === "settings") syncSettingsUI();
+    try { window.scrollTo({ top: 0, behavior: "auto" }); } catch(e){}
+  }
+
+  /* ================= 游戏 ================= */
+  const canvas = $("game");
   const ctx = canvas.getContext("2d");
-  const overlay = document.getElementById("overlay");
-  const countLabel = document.getElementById("countLabel");
-  const lengthLabel = document.getElementById("lengthLabel");
-  const boxHint = document.getElementById("boxHint");
-  const slotsEl = document.getElementById("slots");
-  const poemPanel = document.getElementById("poemPanel");
-  const poemStatus = document.getElementById("poemStatus");
-  const poemStatusText = document.getElementById("poemStatusText");
-  const poemBody = document.getElementById("poemBody");
-  const poemTitleEl = document.getElementById("poemTitle");
-  const poemLinesEl = document.getElementById("poemLines");
-  const poemWordsEl = document.getElementById("poemWords");
-  const artCanvas = document.getElementById("art");
-  const settingsPanel = document.getElementById("settingsPanel");
-  const speedSeg = document.getElementById("speedSeg");
-  const settingsBtn = document.querySelector('[data-act="settings"]');
-  const remixBtn = document.getElementById("remixBtn");
-  const saveBtn = document.getElementById("saveBtn");
-  const againBtn = document.getElementById("againBtn");
-  const footnote = document.getElementById("footnote");
+  const overlay = $("overlay");
+  const countLabel = $("countLabel");
+  const lengthLabel = $("lengthLabel");
+  const boxHint = $("boxHint");
+  const slotsEl = $("slots");
+  const modeChip = $("modeChip");
+  const poemPanel = $("poemPanel");
+  const poemStatus = $("poemStatus");
+  const poemStatusText = $("poemStatusText");
+  const poemBody = $("poemBody");
+  const poemWrap = poemPanel.querySelector(".poem-wrap");
+  const poemTitleEl = $("poemTitle");
+  const poemLinesEl = $("poemLines");
+  const poemWordsEl = $("poemWords");
+  const artCanvas = $("art");
+  const footnote = $("footnote");
+  const remixBtn = $("remixBtn");
+  const saveBtn = $("saveBtn");
+  const againBtn = $("againBtn");
 
-  /* ---------- 游戏状态 ---------- */
   const state = {
-    phase: "ready",     // ready | playing | paused | over | writing
+    phase: "idle",        // idle | playing | paused | over | writing
+    mode: store.get("shici.mode", "classic"),
     snake: [],
-    dir: {x:1,y:0},
+    dir: { x: 1, y: 0 },
     queue: [],
     foods: [],
     box: [],
     grow: 0,
     speed: 168,
-    base: 168,
+    base: Number(store.get("shici.speed", 168)) || 168,
     frozen: false,
     captured: [],
     poem: null,
     view: 320,
-    t: 0
+    effects: []
   };
+  const MODE_NAME = { classic: "经典模式", mixed: "混合模式" };
+
+  function resize(){
+    const rect = canvas.getBoundingClientRect();
+    const size = Math.max(200, Math.floor(rect.width || 320));
+    state.view = size;
+    canvas.width = Math.floor(size * DPR);
+    canvas.height = Math.floor(size * DPR);
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  }
+  window.addEventListener("resize", () => {
+    if(!views.play.hidden) setTimeout(resize, 30);
+    drawHomeInk();
+  });
+
+  const cell = () => state.view / COLS;
+
+  function updateMeta(){
+    countLabel.textContent = state.box.length;
+    lengthLabel.textContent = state.snake.length;
+    const left = 8 - state.box.length;
+    boxHint.textContent = left > 0 ? `还差 ${left} 个` : "已集齐";
+  }
 
   function resetGame(){
-    setSettings(false);
-    const cx = Math.floor(COLS/2), cy = Math.floor(ROWS/2);
-    state.snake = [{x:cx,y:cy},{x:cx-1,y:cy},{x:cx-2,y:cy}];
-    state.dir = {x:1,y:0};
+    const cx = Math.floor(COLS / 2), cy = Math.floor(ROWS / 2);
+    state.snake = [{ x: cx, y: cy }, { x: cx - 1, y: cy }, { x: cx - 2, y: cy }];
+    state.dir = { x: 1, y: 0 };
     state.queue = [];
     state.foods = [];
     state.box = [];
@@ -379,33 +813,30 @@
     state.speed = state.base;
     state.captured = [];
     state.poem = null;
-    state.phase = "ready";
+    state.effects = [];
+    state.phase = "idle";
+    modeChip.textContent = MODE_NAME[state.mode] || MODE_NAME.classic;
     spawnFoods();
     renderBox();
     updateMeta();
-    showReady();
+    hidePoem();
   }
 
-  function showReady(){
-    overlay.hidden = false;
-    overlay.innerHTML = `
-      <p class="kicker">八字成诗</p>
-      <h2>吃下八个词</h2>
-      <p>方向键或 WASD 移动，空格暂停。每吃一个词，它就落进下面的盒子——集满八个，开始写诗。</p>
-      <button class="btn primary" data-act="start">开始</button>`;
+  function newGame(mode){
+    if(mode) state.mode = mode;
+    store.set("shici.mode", state.mode);
+    state.frozen = false;
+    resetGame();
+    showView("play");
+    startGame();
+    audio.unlock();
+    audio.ui();
   }
 
   function startGame(){
-    if(state.frozen) setSettings(false);
     overlay.hidden = true;
     state.phase = "playing";
-    state.last = 0;
-    state.acc = 0;
-  }
-
-  function newRound(){
-    restart();
-    startGame();
+    resize();
   }
 
   function togglePause(){
@@ -416,12 +847,13 @@
         <p class="kicker">停一停</p>
         <h2>已暂停</h2>
         <p>空格或下面的按钮继续。</p>
-        <button class="btn primary" data-act="resume">继续</button>`;
+        <div class="row">
+          <button class="btn primary" data-act="resume">继续</button>
+          <button class="btn" data-act="home">回主界面</button>
+        </div>`;
     } else if(state.phase === "paused"){
       overlay.hidden = true;
       state.phase = "playing";
-      state.acc = 0;
-      state.last = 0;
     }
   }
 
@@ -432,63 +864,26 @@
       <p class="kicker">这一局</p>
       <h2>${reason}</h2>
       <p>已收 ${state.box.length} 个词。再来一局，凑满八个。</p>
-      <button class="btn primary restart-btn" data-act="restart">重新开始</button>`;
+      <div class="row">
+        <button class="btn primary restart-btn" data-act="restart">重新开始</button>
+        <button class="btn" data-act="home">回主界面</button>
+      </div>`;
+    audio.chord();
   }
 
-  function updateMeta(){
-    countLabel.textContent = state.box.length;
-    lengthLabel.textContent = state.snake.length;
-    const left = 8 - state.box.length;
-    boxHint.textContent = left > 0 ? `还差 ${left} 个` : "已集齐";
+  function showModeChooser(){
+    overlay.hidden = false;
+    overlay.innerHTML = `
+      <p class="kicker">八字成诗</p>
+      <h2>选一种玩法</h2>
+      <p>经典模式只收中文词，混合模式里会混入英文单词。</p>
+      <div class="row">
+        <button class="btn primary" data-start="classic">经典模式</button>
+        <button class="btn" data-start="mixed">混合模式</button>
+      </div>`;
   }
 
-  /* ---------- 速度设置 ---------- */
-  const SPEEDS = [210, 168, 130, 100];
-
-  function syncSpeedUI(){
-    for(const btn of speedSeg.querySelectorAll("button")){
-      btn.setAttribute("aria-pressed", String(Number(btn.dataset.speed) === state.base));
-    }
-  }
-
-  function setBaseSpeed(base){
-    state.base = base;
-    const eaten = state.phase === "writing" ? 8 : state.box.length;
-    state.speed = Math.max(80, base - eaten * 5);
-    syncSpeedUI();
-  }
-
-  function cycleSpeed(step){
-    let i = SPEEDS.indexOf(state.base);
-    if(i < 0) i = 1;
-    const next = Math.min(SPEEDS.length - 1, Math.max(0, i + step));
-    setBaseSpeed(SPEEDS[next]);
-  }
-
-  function setSettings(open){
-    state.frozen = open;
-    settingsPanel.hidden = !open;
-    settingsBtn.textContent = open ? "收起" : "设置";
-    settingsBtn.setAttribute("aria-expanded", String(open));
-    if(open){
-      settingsPanel.scrollIntoView({block:"nearest", behavior: reduceMotion ? "auto" : "smooth"});
-    }
-  }
-
-  /* ---------- 棋盘尺寸 ---------- */
-  function resize(){
-    const rect = canvas.getBoundingClientRect();
-    const size = Math.max(200, Math.floor(rect.width || 320));
-    state.view = size;
-    canvas.width = Math.floor(size * DPR);
-    canvas.height = Math.floor(size * DPR);
-    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-  }
-  window.addEventListener("resize", resize);
-
-  function cell(){ return state.view / COLS; }
-
-  /* ---------- 食物 ---------- */
+  /* ---------- 词块 ---------- */
   function occupied(){
     const set = new Set();
     state.snake.forEach(s => set.add(s.x + "," + s.y));
@@ -498,9 +893,15 @@
 
   function spawnFoods(){
     const used = occupied();
-    const placedWords = state.foods.map(f => f.word);
-    const available = WORDS.filter(w => !state.box.includes(w) && !placedWords.includes(w));
-    while(state.foods.length < 3 && available.length){
+    const usedWords = new Set(state.box.map(b => b.word));
+    state.foods.forEach(f => usedWords.add(f.word));
+
+    const cn = CN_WORDS.filter(w => !usedWords.has(w)).map(w => ({ word: w, lang: "cn" }));
+    const en = EN_WORDS.filter(w => !usedWords.has(w)).map(w => ({ word: w, lang: "en" }));
+    let pool = cn;
+    if(state.mode === "mixed") pool = cn.concat(en);
+
+    while(state.foods.length < 3 && pool.length){
       let x, y, tries = 0;
       do {
         x = 1 + Math.floor(Math.random() * (COLS - 2));
@@ -509,30 +910,42 @@
       } while(used.has(x + "," + y) && tries < 300);
       if(tries >= 300) break;
       used.add(x + "," + y);
-      const wi = Math.floor(Math.random() * available.length);
-      state.foods.push({x, y, word: available.splice(wi, 1)[0], born: performance.now()});
+
+      let item;
+      if(state.mode === "mixed" && en.length && Math.random() < 0.45){
+        const i = Math.floor(Math.random() * en.length);
+        item = en.splice(i, 1)[0];
+        const ci = cn.findIndex(c => c.word === item.word);
+        if(ci >= 0) cn.splice(ci, 1);
+      } else if(cn.length){
+        const i = Math.floor(Math.random() * cn.length);
+        item = cn.splice(i, 1)[0];
+      } else {
+        item = en.splice(Math.floor(Math.random() * en.length), 1)[0];
+      }
+      if(!item) break;
+      pool = cn.concat(en);
+      state.foods.push({ x, y, word: item.word, lang: item.lang, born: performance.now() });
     }
   }
 
-  /* ---------- 词盒 ---------- */
   function renderBox(){
     slotsEl.innerHTML = "";
     for(let i = 0; i < 8; i++){
       const el = document.createElement("div");
       el.className = "slot";
-      if(state.box[i]){
+      const item = state.box[i];
+      if(item){
         el.classList.add("filled");
-        el.textContent = state.box[i];
+        if(item.lang === "en") el.classList.add("en");
+        el.textContent = item.word;
       } else {
         el.textContent = "·";
       }
       slotsEl.appendChild(el);
     }
     const filled = slotsEl.querySelectorAll(".slot.filled");
-    if(filled.length){
-      const last = filled[filled.length - 1];
-      last.classList.add("fresh");
-    }
+    if(filled.length) filled[filled.length - 1].classList.add("fresh");
     updateMeta();
   }
 
@@ -546,49 +959,42 @@
     const nx = head.x + state.dir.x;
     const ny = head.y + state.dir.y;
 
-    if(nx < 0 || ny < 0 || nx >= COLS || ny >= ROWS){
-      gameOver("撞到了画框");
-      return;
-    }
+    if(nx < 0 || ny < 0 || nx >= COLS || ny >= ROWS){ gameOver("撞到了画框"); return; }
+
     const willGrow = state.grow > 0;
     for(let i = 0; i < state.snake.length; i++){
       if(!willGrow && i === state.snake.length - 1) continue;
-      if(state.snake[i].x === nx && state.snake[i].y === ny){
-        gameOver("咬到了自己");
-        return;
-      }
+      if(state.snake[i].x === nx && state.snake[i].y === ny){ gameOver("咬到了自己"); return; }
     }
 
-    state.snake.unshift({x:nx, y:ny});
+    state.snake.unshift({ x: nx, y: ny });
     if(state.grow > 0) state.grow--; else state.snake.pop();
 
     const fi = state.foods.findIndex(f => f.x === nx && f.y === ny);
     if(fi >= 0){
       const food = state.foods[fi];
       state.foods.splice(fi, 1);
-      state.box.push(food.word);
+      state.box.push({ word: food.word, lang: food.lang });
       state.grow += 1;
       state.speed = Math.max(80, state.speed - 5);
+      state.effects.push({ x: nx, y: ny, t: performance.now() });
       spawnFoods();
       renderBox();
-      updateMeta();
-      if(state.box.length === 8){
-        beginPoem();
-        return;
-      }
+      audio.eat(state.box.length);
+      if(state.box.length === 8){ beginPoem(); return; }
     }
     updateMeta();
   }
 
   /* ---------- 绘制 ---------- */
   function roundRect(c, x, y, w, h, r){
-    const rr = Math.min(r, w/2, h/2);
+    const rr = Math.min(r, w / 2, h / 2);
     c.beginPath();
-    c.moveTo(x+rr, y);
-    c.arcTo(x+w, y, x+w, y+h, rr);
-    c.arcTo(x+w, y+h, x, y+h, rr);
-    c.arcTo(x, y+h, x, y, rr);
-    c.arcTo(x, y, x+w, y, rr);
+    c.moveTo(x + rr, y);
+    c.arcTo(x + w, y, x + w, y + h, rr);
+    c.arcTo(x + w, y + h, x, y + h, rr);
+    c.arcTo(x, y + h, x, y, rr);
+    c.arcTo(x, y, x + w, y, rr);
     c.closePath();
   }
 
@@ -597,56 +1003,73 @@
     const cs = cell();
     ctx.clearRect(0, 0, size, size);
 
-    // 棋盘底
     const bg = ctx.createLinearGradient(0, 0, size, size);
     bg.addColorStop(0, "#0B1A24");
     bg.addColorStop(1, "#08131B");
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, size, size);
 
-    // 网格点
     ctx.fillStyle = "rgba(211,177,115,.10)";
     for(let y = 1; y < ROWS; y++){
       for(let x = 1; x < COLS; x++){
         ctx.beginPath();
-        ctx.arc(x * cs, y * cs, 1, 0, Math.PI*2);
+        ctx.arc(x * cs, y * cs, 1, 0, Math.PI * 2);
         ctx.fill();
       }
+    }
+
+    // 吃掉时的涟漪
+    state.effects = state.effects.filter(e => time - e.t < 460);
+    for(const e of state.effects){
+      const p = (time - e.t) / 460;
+      ctx.beginPath();
+      ctx.arc(e.x * cs + cs / 2, e.y * cs + cs / 2, cs * (0.3 + p * 0.9), 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(211,177,115,${0.5 * (1 - p)})`;
+      ctx.lineWidth = 1.6;
+      ctx.stroke();
     }
 
     // 词块
     for(const f of state.foods){
       const pulse = reduceMotion ? 0 : Math.sin((time - f.born) / 520) * 0.02;
       const pad = cs * 0.08;
-      const x = f.x * cs + pad, y = f.y * cs + pad;
-      const w = cs - pad * 2, h = w;
+      let w, h;
+      if(f.lang === "en"){ w = cs * 1.62 - pad * 2; h = cs * 0.84; }
+      else { w = cs - pad * 2; h = w; }
+      const x = f.x * cs + cs / 2 - w / 2;
+      const y = f.y * cs + cs / 2 - h / 2;
       ctx.save();
-      ctx.translate(x + w/2, y + h/2);
+      ctx.translate(x + w / 2, y + h / 2);
       ctx.scale(1 + pulse, 1 + pulse);
-      ctx.translate(-(x + w/2), -(y + h/2));
+      ctx.translate(-(x + w / 2), -(y + h / 2));
 
-      ctx.shadowColor = "rgba(211,177,115,.45)";
+      ctx.shadowColor = f.lang === "en" ? "rgba(127,168,139,.5)" : "rgba(211,177,115,.45)";
       ctx.shadowBlur = cs * 0.5;
       ctx.fillStyle = "rgba(10,22,31,.92)";
       roundRect(ctx, x, y, w, h, cs * 0.18);
       ctx.fill();
       ctx.shadowBlur = 0;
 
-      ctx.strokeStyle = "rgba(211,177,115,.62)";
+      ctx.strokeStyle = f.lang === "en" ? "rgba(127,168,139,.66)" : "rgba(211,177,115,.62)";
       ctx.lineWidth = Math.max(1, cs * 0.035);
       roundRect(ctx, x, y, w, h, cs * 0.18);
       ctx.stroke();
 
       ctx.fillStyle = "#F1E8D6";
-      ctx.font = `600 ${cs * 0.4}px ${SERIF}`;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      const word = f.word;
-      if(word.length > 1){
-        ctx.fillText(word[0], x + w/2, y + h/2 - cs * 0.2);
-        ctx.fillText(word[1], x + w/2, y + h/2 + cs * 0.2);
+      if(f.lang === "en"){
+        let fs = cs * 0.42;
+        ctx.font = `600 ${fs}px ${EN_SERIF}`;
+        while(ctx.measureText(f.word).width > w - cs * 0.18 && fs > cs * 0.17){
+          fs -= 0.5;
+          ctx.font = `600 ${fs}px ${EN_SERIF}`;
+        }
+        ctx.fillText(f.word, x + w / 2, y + h / 2 + cs * 0.01);
       } else {
-        ctx.fillText(word, x + w/2, y + h/2);
+        ctx.font = `600 ${cs * 0.4}px ${SERIF}`;
+        ctx.fillText(f.word[0], x + w / 2, y + h / 2 - cs * 0.2);
+        ctx.fillText(f.word[1] || "", x + w / 2, y + h / 2 + cs * 0.2);
       }
       ctx.restore();
     }
@@ -654,14 +1077,13 @@
     // 蛇
     const body = state.snake;
     if(body.length){
-      const cx = s => s.x * cs + cs/2;
-      const cy = s => s.y * cs + cs/2;
-
+      const cx = s => s.x * cs + cs / 2;
+      const cy = s => s.y * cs + cs / 2;
       ctx.save();
       ctx.lineJoin = "round";
       ctx.lineCap = "round";
       ctx.lineWidth = cs * 0.66;
-      const grad = ctx.createLinearGradient(cx(body[0]), cy(body[0]), cx(body[body.length-1]), cy(body[body.length-1]));
+      const grad = ctx.createLinearGradient(cx(body[0]), cy(body[0]), cx(body[body.length - 1]), cy(body[body.length - 1]));
       grad.addColorStop(0, "#A7D2B7");
       grad.addColorStop(0.55, "#6FA189");
       grad.addColorStop(1, "#3E6B58");
@@ -674,24 +1096,20 @@
       ctx.stroke();
       ctx.restore();
 
-      // 头
       const h = body[0];
       ctx.fillStyle = "#B6DCC4";
       ctx.beginPath();
-      ctx.arc(cx(h), cy(h), cs * 0.31, 0, Math.PI*2);
+      ctx.arc(cx(h), cy(h), cs * 0.31, 0, Math.PI * 2);
       ctx.fill();
 
-      // 眼
-      const ex = state.dir.x, ey = state.dir.y;
-      const px = -ey, py = ex;
+      const ex = state.dir.x, ey = state.dir.y, px = -ey, py = ex;
       ctx.fillStyle = "#0A1A22";
-      const er = Math.max(1.4, cs * 0.055);
-      const off = cs * 0.13;
+      const er = Math.max(1.4, cs * 0.055), off = cs * 0.13;
       ctx.beginPath();
-      ctx.arc(cx(h) + ex*off + px*off, cy(h) + ey*off + py*off, er, 0, Math.PI*2);
+      ctx.arc(cx(h) + ex * off + px * off, cy(h) + ey * off + py * off, er, 0, Math.PI * 2);
       ctx.fill();
       ctx.beginPath();
-      ctx.arc(cx(h) + ex*off - px*off, cy(h) + ey*off - py*off, er, 0, Math.PI*2);
+      ctx.arc(cx(h) + ex * off - px * off, cy(h) + ey * off - py * off, er, 0, Math.PI * 2);
       ctx.fill();
     }
   }
@@ -702,85 +1120,57 @@
     if(!lastTime) lastTime = t;
     const dt = Math.min(120, t - lastTime);
     lastTime = t;
-
-    if(state.phase === "playing" && !state.frozen){
+    if(state.phase === "playing" && !state.frozen && !views.play.hidden){
       acc += dt;
       while(acc >= state.speed && state.phase === "playing"){
         acc -= state.speed;
         step();
       }
     }
-    draw(t);
+    if(!views.play.hidden) draw(t);
     requestAnimationFrame(frame);
   }
 
   /* ---------- 输入 ---------- */
-  const DIRS = {
-    up:    {x:0,y:-1},
-    down:  {x:0,y:1},
-    left:  {x:-1,y:0},
-    right: {x:1,y:0}
-  };
+  const DIRS = { up: { x: 0, y: -1 }, down: { x: 0, y: 1 }, left: { x: -1, y: 0 }, right: { x: 1, y: 0 } };
 
   function pushDir(name){
     if(state.phase !== "playing" || state.frozen) return;
     const d = DIRS[name];
     if(!d) return;
-    const lastDir = state.queue.length ? state.queue[state.queue.length-1] : state.dir;
+    const lastDir = state.queue.length ? state.queue[state.queue.length - 1] : state.dir;
     if(d.x === -lastDir.x && d.y === -lastDir.y) return;
     if(d.x === lastDir.x && d.y === lastDir.y) return;
     if(state.queue.length < 3) state.queue.push(d);
   }
 
   const KEYMAP = {
-    ArrowUp:"up", ArrowDown:"down", ArrowLeft:"left", ArrowRight:"right",
-    w:"up", s:"down", a:"left", d:"right",
-    W:"up", S:"down", A:"left", D:"right"
+    ArrowUp: "up", ArrowDown: "down", ArrowLeft: "left", ArrowRight: "right",
+    w: "up", s: "down", a: "left", d: "right",
+    W: "up", S: "down", A: "left", D: "right"
   };
 
   window.addEventListener("keydown", e => {
-    if(e.key === "Escape" && !settingsPanel.hidden){
-      e.preventDefault();
-      setSettings(false);
-      return;
-    }
-    if(e.key === "[" || e.key === "]"){
-      e.preventDefault();
-      cycleSpeed(e.key === "]" ? 1 : -1);
-      return;
-    }
-    if(state.frozen){
-      if(KEYMAP[e.key] || e.key === " ") e.preventDefault();
-      return;
-    }
+    if(views.play.hidden) return;
     if(KEYMAP[e.key]){
       e.preventDefault();
       pushDir(KEYMAP[e.key]);
     } else if(e.key === " "){
       e.preventDefault();
       if(state.phase === "playing" || state.phase === "paused") togglePause();
-      else if(state.phase === "ready") startGame();
-      else if(state.phase === "over") newRound();
     }
-  }, {passive:false});
+  }, { passive: false });
 
   document.querySelector(".pad").addEventListener("click", e => {
     const btn = e.target.closest("button");
     if(!btn) return;
-    if(btn.dataset.act === "settings"){ setSettings(settingsPanel.hidden); return; }
-    if(btn.dataset.act === "pause"){ if(!state.frozen) togglePause(); return; }
+    if(btn.dataset.act === "pause"){ togglePause(); return; }
     if(btn.dataset.dir) pushDir(btn.dataset.dir);
-  });
-
-  settingsPanel.addEventListener("click", e => {
-    const btn = e.target.closest("button");
-    if(!btn) return;
-    if(btn.dataset.speed) setBaseSpeed(Number(btn.dataset.speed));
   });
 
   let swipeStart = null;
   canvas.addEventListener("pointerdown", e => {
-    swipeStart = {x:e.clientX, y:e.clientY};
+    swipeStart = { x: e.clientX, y: e.clientY };
     canvas.setPointerCapture?.(e.pointerId);
   });
   canvas.addEventListener("pointerup", e => {
@@ -794,14 +1184,15 @@
   });
 
   overlay.addEventListener("click", e => {
-    const btn = e.target.closest("button[data-act]");
+    const btn = e.target.closest("button");
     if(!btn) return;
-    if(btn.dataset.act === "start") startGame();
-    if(btn.dataset.act === "restart") newRound();
-    if(btn.dataset.act === "resume") togglePause();
+    if(btn.dataset.start) newGame(btn.dataset.start);
+    else if(btn.dataset.act === "restart") newGame(state.mode);
+    else if(btn.dataset.act === "resume") togglePause();
+    else if(btn.dataset.act === "home") goHome("home");
   });
 
-  /* ---------- 写诗 ---------- */
+  /* ================= 写诗 ================= */
   const REMIX_HINTS = [
     "这一版写得更冷、更静，像夜里的一封信。",
     "这一版写得更暖、更亮，像清晨刚醒来的院子。",
@@ -811,12 +1202,11 @@
     "这一版把它写成一个没有结尾的梦。"
   ];
 
-  function pick(arr){ return arr[Math.floor(Math.random() * arr.length)]; }
-
-  function buildPrompt(words, hint){
+  function buildPrompt(words, hint, mixed){
     return [
       "你是一位中文诗人。请只用下面八个词作为核心意象，写一首现代中文小诗。",
       "八个词：" + words.join("、"),
+      mixed ? "其中夹有英文单词，请把它们原样保留在诗里，不要翻译。" : "",
       hint ? "额外的要求：" + hint : "",
       "规则：",
       "1. 共四行，每行 8 到 14 个字。",
@@ -849,25 +1239,18 @@
     (a, b) => `如果${a}也会想起${b}`
   ];
 
-  function shuffle(arr){
-    for(let i = arr.length - 1; i > 0; i--){
-      const j = Math.floor(Math.random() * (i + 1));
-      const t = arr[i]; arr[i] = arr[j]; arr[j] = t;
-    }
-    return arr;
-  }
-
   function fallbackPoem(words){
     const w = shuffle(words.slice());
     const patterns = shuffle(LINE_PATTERNS.slice()).slice(0, 4);
     const lines = patterns.map((fn, i) => fn(w[i * 2], w[i * 2 + 1]));
-    const title = Math.random() < 0.55 ? pick(POEM_TITLES) : `${w[0]}${w[1]}`;
-    return {title, lines, imageHint: "", source: "local"};
+    const pair = /[A-Za-z]/.test(w[0] + w[1]) ? `${w[0]} ${w[1]}` : `${w[0]}${w[1]}`;
+    const title = Math.random() < 0.55 ? pick(POEM_TITLES) : pair;
+    return { title, lines, imageHint: "", words: words.slice(), source: "local" };
   }
 
   function parsePoem(raw, words){
     let s = String(raw || "").trim();
-    s = s.replace(/^```(?:json)?\s*/i, "").replace(/```$/,"").trim();
+    s = s.replace(/^```(?:json)?\s*/i, "").replace(/```$/, "").trim();
     const a = s.indexOf("{"), b = s.lastIndexOf("}");
     if(a >= 0 && b > a){
       try {
@@ -876,16 +1259,16 @@
           ? o.lines.map(x => String(x).trim()).filter(Boolean).slice(0, 6)
           : [];
         if(o.title && lines.length >= 2){
-          return {title: String(o.title).slice(0, 8), lines, imageHint: String(o.imageHint || ""), source: "llm"};
+          return { title: String(o.title).slice(0, 10), lines, imageHint: String(o.imageHint || ""), words: words.slice(), source: "llm" };
         }
-      } catch(err){ /* 落回纯文本解析 */ }
+      } catch(err){ /* 落回纯文本 */ }
     }
     const lines = s.split(/\n+/)
       .map(t => t.replace(/^\s*[\d一二三四五六]+[、.．)）]?\s*/, "").trim())
       .filter(t => t.length > 1 && !/^[{}[\]]/.test(t))
       .slice(0, 6);
     if(lines.length >= 2){
-      return {title: pick(["夜行帖", "未寄", "山中来信", "拾词记"]), lines, imageHint: "", source: "llm"};
+      return { title: pick(["夜行帖", "未寄", "山中来信", "拾词记"]), lines, imageHint: "", words: words.slice(), source: "llm" };
     }
     return fallbackPoem(words);
   }
@@ -902,11 +1285,11 @@
   }
 
   async function composePoem(words, hint){
-    const prompt = buildPrompt(words, hint);
+    const mixed = words.some(w => /[A-Za-z]/.test(w));
     if(canAskLLM()){
       try {
         const res = await withTimeout(
-          window.cowork.askClaude(prompt, [words.join("、"), hint || "第一版"]),
+          window.cowork.askClaude(buildPrompt(words, hint, mixed), [words.join("、"), hint || "第一版"]),
           20000
         );
         if(res && !res.isError){
@@ -921,7 +1304,9 @@
     return fallbackPoem(words);
   }
 
-  function renderPoem(poem, words){
+  function renderPoem(poem){
+    const latin = /[A-Za-z]/.test(poem.title + poem.lines.join(""));
+    poemWrap.classList.toggle("latin", latin);
     poemTitleEl.textContent = poem.title;
     poemLinesEl.innerHTML = "";
     poem.lines.forEach(line => {
@@ -929,32 +1314,51 @@
       p.textContent = line;
       poemLinesEl.appendChild(p);
     });
-    poemWordsEl.textContent = words.join(" · ");
+    poemWordsEl.textContent = poem.words.join(" · ");
   }
 
-  /* ---------- 画面 ---------- */
+  function setStatus(text){
+    if(!text){ poemStatus.hidden = true; return; }
+    poemStatus.hidden = false;
+    poemStatusText.textContent = text;
+  }
+
+  function hidePoem(){
+    poemPanel.hidden = true;
+    poemBody.hidden = true;
+    artCanvas.classList.remove("show");
+    setStatus("");
+  }
+
+  /* ================= 画面 ================= */
   const PALETTES = {
     night: {
-      sky:["#07111C", "#22425E"], glow:"#E9EFF5",
-      ridge:["#355C78", "#2A4C64", "#1F3B50", "#152C3D", "#0B1B27"],
-      stars:true, water:"#07131E", accent:"#D9B26A"
+      sky: ["#07111C", "#22425E"], glow: "#E9EFF5",
+      ridge: ["#355C78", "#2A4C64", "#1F3B50", "#152C3D", "#0B1B27"],
+      stars: true, water: "#07131E", accent: "#D9B26A"
     },
     jade: {
-      sky:["#0B1A17", "#33594A"], glow:"#F3E8C9",
-      ridge:["#47745F", "#3A6352", "#2D5143", "#203C32", "#122520"],
-      stars:false, water:"#091714", accent:"#D9B26A"
+      sky: ["#0B1A17", "#33594A"], glow: "#F3E8C9",
+      ridge: ["#47745F", "#3A6352", "#2D5143", "#203C32", "#122520"],
+      stars: false, water: "#091714", accent: "#D9B26A"
     },
     dusk: {
-      sky:["#170E11", "#63352B"], glow:"#F5BC7C",
-      ridge:["#7A4738", "#653B2F", "#4E2C24", "#371D18", "#20100D"],
-      stars:false, water:"#160D0C", accent:"#E6A85C"
+      sky: ["#170E11", "#63352B"], glow: "#F5BC7C",
+      ridge: ["#7A4738", "#653B2F", "#4E2C24", "#371D18", "#20100D"],
+      stars: false, water: "#160D0C", accent: "#E6A85C"
     },
     snow: {
-      sky:["#0D151C", "#415665"], glow:"#ECF3F7",
-      ridge:["#587080", "#4A5F6D", "#3A4C58", "#2A3843", "#1A2530"],
-      stars:true, water:"#0C141A", accent:"#CFE0E8"
+      sky: ["#0D151C", "#415665"], glow: "#ECF3F7",
+      ridge: ["#587080", "#4A5F6D", "#3A4C58", "#2A3843", "#1A2530"],
+      stars: true, water: "#0C141A", accent: "#CFE0E8"
     }
   };
+
+  function hexA(hex, a){
+    const h = hex.replace("#", "");
+    const n = parseInt(h.length === 3 ? h.split("").map(c => c + c).join("") : h, 16);
+    return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
+  }
 
   function shade(hex, f){
     const h = hex.replace("#", "");
@@ -963,73 +1367,6 @@
     const g = Math.min(255, Math.round(((n >> 8) & 255) * f));
     const b = Math.min(255, Math.round((n & 255) * f));
     return `rgb(${r},${g},${b})`;
-  }
-
-  function ridgePoints(rnd, W, count){
-    const pts = [];
-    for(let i = 0; i <= count; i++) pts.push({x: i * W / count, y: 0.14 + rnd() * 0.86});
-    for(let i = 1; i < pts.length - 1; i++){
-      pts[i].y = pts[i-1].y * 0.24 + pts[i].y * 0.52 + pts[i+1].y * 0.24;
-    }
-    return pts;
-  }
-
-  function ridgeYAt(ridge, x, W){
-    const pts = ridge.pts;
-    const step = W / (pts.length - 1);
-    const i = Math.min(pts.length - 2, Math.max(0, Math.floor(x / step)));
-    const t = (x - pts[i].x) / step;
-    const y = pts[i].y + (pts[i+1].y - pts[i].y) * t;
-    return ridge.baseY - y * ridge.amp;
-  }
-
-  function traceRidge(c, ridge, W, H, close){
-    const {pts, baseY, amp} = ridge;
-    c.moveTo(0, baseY - pts[0].y * amp);
-    for(let i = 1; i < pts.length; i++){
-      const p = pts[i], q = pts[i-1];
-      c.quadraticCurveTo(q.x, baseY - q.y * amp, (q.x + p.x) / 2, baseY - ((q.y + p.y) / 2) * amp);
-    }
-    c.lineTo(W, baseY - pts[pts.length-1].y * amp);
-    if(close){
-      c.lineTo(W, H);
-      c.lineTo(0, H);
-      c.closePath();
-    }
-  }
-
-  function drawPine(c, x, y, h, color){
-    c.save();
-    c.fillStyle = color;
-    c.fillRect(x - Math.max(1, h * 0.022), y - h * 0.42, Math.max(2, h * 0.045), h * 0.42);
-    for(let i = 0; i < 3; i++){
-      const ty = y - h * (0.34 + i * 0.2);
-      const w = h * (0.24 - i * 0.05);
-      c.beginPath();
-      c.moveTo(x, ty - h * 0.3);
-      c.lineTo(x - w, ty);
-      c.lineTo(x + w, ty);
-      c.closePath();
-      c.fill();
-    }
-    c.restore();
-  }
-
-  function pickPalette(poem, words){
-    const text = (poem.title + poem.lines.join("") + (poem.imageHint || "") + words.join("")).toLowerCase();
-    const scores = {night:0, jade:0, dusk:0, snow:0};
-    const add = (keys, name, weight) => {
-      keys.forEach(k => { if(text.includes(k)) scores[name] += weight; });
-    };
-    add(["月","夜","星","蓝","海","潮","井","雾","银","鲸"], "night", 2);
-    add(["春","草","苔","竹","薄荷","松","林","麦","叶","青","绿","鸽"], "jade", 2);
-    add(["火","焰","红","秋","灯","暮","铁","铜","橙","夕","霞","锈"], "dusk", 2);
-    add(["雪","霜","冰","冬","白","冷"], "snow", 3);
-    let best = "night", bestScore = -1;
-    Object.keys(scores).forEach(k => {
-      if(scores[k] > bestScore){ bestScore = scores[k]; best = k; }
-    });
-    return PALETTES[best];
   }
 
   function hashStr(s){
@@ -1050,24 +1387,73 @@
     };
   }
 
-  function hexA(hex, a){
-    const h = hex.replace("#", "");
-    const n = parseInt(h.length === 3 ? h.split("").map(c => c + c).join("") : h, 16);
-    const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
-    return `rgba(${r},${g},${b},${a})`;
+  function pickPalette(poem){
+    const text = (poem.title + poem.lines.join("") + (poem.imageHint || "") + (poem.words || []).join("")).toLowerCase();
+    const scores = { night: 0, jade: 0, dusk: 0, snow: 0 };
+    const add = (keys, name, weight) => keys.forEach(k => { if(text.includes(k)) scores[name] += weight; });
+    add(["月", "夜", "星", "蓝", "海", "潮", "井", "雾", "银", "鲸", "moon", "night", "star", "tide"], "night", 2);
+    add(["春", "草", "苔", "竹", "薄荷", "松", "林", "麦", "叶", "青", "绿", "鸽", "mint", "spring", "pine"], "jade", 2);
+    add(["火", "焰", "红", "秋", "灯", "暮", "铁", "铜", "橙", "夕", "霞", "锈", "ember", "dusk", "lamp"], "dusk", 2);
+    add(["雪", "霜", "冰", "冬", "白", "冷", "snow"], "snow", 3);
+    let best = "night", bestScore = -1;
+    Object.keys(scores).forEach(k => { if(scores[k] > bestScore){ bestScore = scores[k]; best = k; } });
+    return PALETTES[best];
   }
 
-  function vText(c, str, x, y, size, gap, color, weight, shadow){
+  function ridgePoints(rnd, W, count){
+    const pts = [];
+    for(let i = 0; i <= count; i++) pts.push({ x: i * W / count, y: 0.14 + rnd() * 0.86 });
+    for(let i = 1; i < pts.length - 1; i++){
+      pts[i].y = pts[i - 1].y * 0.24 + pts[i].y * 0.52 + pts[i + 1].y * 0.24;
+    }
+    return pts;
+  }
+
+  function ridgeYAt(ridge, x, W){
+    const pts = ridge.pts;
+    const step = W / (pts.length - 1);
+    const i = Math.min(pts.length - 2, Math.max(0, Math.floor(x / step)));
+    const y = pts[i].y + (pts[i + 1].y - pts[i].y) * ((x - pts[i].x) / step);
+    return ridge.baseY - y * ridge.amp;
+  }
+
+  function traceRidge(c, ridge, W, H, close){
+    const { pts, baseY, amp } = ridge;
+    c.moveTo(0, baseY - pts[0].y * amp);
+    for(let i = 1; i < pts.length; i++){
+      const p = pts[i], q = pts[i - 1];
+      c.quadraticCurveTo(q.x, baseY - q.y * amp, (q.x + p.x) / 2, baseY - ((q.y + p.y) / 2) * amp);
+    }
+    c.lineTo(W, baseY - pts[pts.length - 1].y * amp);
+    if(close){ c.lineTo(W, H); c.lineTo(0, H); c.closePath(); }
+  }
+
+  function drawPine(c, x, y, h, color){
+    c.save();
+    c.fillStyle = color;
+    c.fillRect(x - Math.max(1, h * 0.022), y - h * 0.42, Math.max(2, h * 0.045), h * 0.42);
+    for(let i = 0; i < 3; i++){
+      const ty = y - h * (0.34 + i * 0.2);
+      const w = h * (0.24 - i * 0.05);
+      c.beginPath();
+      c.moveTo(x, ty - h * 0.3);
+      c.lineTo(x - w, ty);
+      c.lineTo(x + w, ty);
+      c.closePath();
+      c.fill();
+    }
+    c.restore();
+  }
+
+  function vText(c, str, x, y, size, gap, color, weight){
     c.save();
     c.fillStyle = color;
     c.font = `${weight || 400} ${size}px ${SERIF}`;
     c.textAlign = "center";
     c.textBaseline = "middle";
-    if(shadow){
-      c.shadowColor = "rgba(0,0,0,.55)";
-      c.shadowBlur = 18;
-      c.shadowOffsetY = 2;
-    }
+    c.shadowColor = "rgba(0,0,0,.55)";
+    c.shadowBlur = 18;
+    c.shadowOffsetY = 2;
     let cy = y;
     for(const ch of str){
       c.fillText(ch, x, cy);
@@ -1077,40 +1463,37 @@
     return cy;
   }
 
-  function drawArt(target, poem){
+  function drawArt(target, poem, scale){
+    const s = scale || 1;
     const W = 900, H = 1200;
-    target.width = W;
-    target.height = H;
+    target.width = Math.round(W * s);
+    target.height = Math.round(H * s);
     const c = target.getContext("2d");
+    c.setTransform(s, 0, 0, s, 0, 0);
     const rnd = mulberry32(hashStr(poem.title + "|" + poem.lines.join("|")));
-    const pal = pickPalette(poem, []);
+    const pal = pickPalette(poem);
 
-    // 天空
     const sky = c.createLinearGradient(0, 0, 0, H * 0.82);
     sky.addColorStop(0, pal.sky[0]);
     sky.addColorStop(1, pal.sky[1]);
     c.fillStyle = sky;
     c.fillRect(0, 0, W, H);
 
-    // 星
     if(pal.stars){
       for(let i = 0; i < 240; i++){
-        const x = rnd() * W;
-        const y = rnd() * H * 0.62;
-        const r = rnd() * 1.7 + 0.3;
         c.globalAlpha = 0.15 + rnd() * 0.6;
         c.fillStyle = "#EAF1F6";
         c.beginPath();
-        c.arc(x, y, r, 0, Math.PI * 2);
+        c.arc(rnd() * W, rnd() * H * 0.62, rnd() * 1.7 + 0.3, 0, Math.PI * 2);
         c.fill();
       }
       c.globalAlpha = 1;
     }
 
-    // 月轮 / 日光
     const gx = W * (0.28 + rnd() * 0.3);
     const gy = H * (0.15 + rnd() * 0.08);
     const gr = 88 + rnd() * 42;
+
     const halo = c.createRadialGradient(gx, gy, gr * 0.2, gx, gy, gr * 3.2);
     halo.addColorStop(0, hexA(pal.glow, 0.5));
     halo.addColorStop(0.35, hexA(pal.glow, 0.14));
@@ -1131,7 +1514,6 @@
     c.fill();
     c.globalAlpha = 1;
 
-    // 地平线附近的暖光
     const hz = c.createLinearGradient(0, H * 0.34, 0, H * 0.63);
     hz.addColorStop(0, hexA(pal.accent, 0));
     hz.addColorStop(0.62, hexA(pal.accent, 0.1));
@@ -1139,13 +1521,12 @@
     c.fillStyle = hz;
     c.fillRect(0, H * 0.34, W, H * 0.29);
 
-    // 远山层叠
     const ridges = [];
     for(let layer = 0; layer < pal.ridge.length; layer++){
       const baseY = H * (0.44 + layer * 0.075);
       const amp = 90 + layer * 32;
       const pts = ridgePoints(rnd, W, 5 + layer * 2);
-      const ridge = {pts, baseY, amp};
+      const ridge = { pts, baseY, amp };
 
       const g = c.createLinearGradient(0, baseY - amp, 0, Math.min(H, baseY + 90));
       g.addColorStop(0, pal.ridge[layer]);
@@ -1155,14 +1536,12 @@
       traceRidge(c, ridge, W, H, true);
       c.fill();
 
-      // 山脊微光
       c.strokeStyle = hexA(pal.glow, 0.09 + layer * 0.02);
       c.lineWidth = 1.5;
       c.beginPath();
       traceRidge(c, ridge, W, H, false);
       c.stroke();
 
-      // 层间薄雾
       const mistY = baseY + 14;
       const mg = c.createLinearGradient(0, mistY - 56, 0, mistY + 56);
       mg.addColorStop(0, hexA(pal.glow, 0));
@@ -1174,22 +1553,18 @@
       ridges.push(ridge);
     }
 
-    // 近山松树
     const nearRidge = ridges[ridges.length - 1];
     const pineCount = 3 + Math.floor(rnd() * 3);
     for(let i = 0; i < pineCount; i++){
       const px = W * (0.06 + rnd() * 0.55);
-      const py = ridgeYAt(nearRidge, px, W) + 6;
-      drawPine(c, px, py, 34 + rnd() * 36, hexA("#0A1714", 0.92));
+      drawPine(c, px, ridgeYAt(nearRidge, px, W) + 6, 34 + rnd() * 36, hexA("#0A1714", 0.92));
     }
 
-    // 岩石皴笔
     for(let i = 0; i < 170; i++){
       const ridge = ridges[2 + Math.floor(rnd() * 3)];
       const x = rnd() * W;
       const y = ridgeYAt(ridge, x, W) + 8 + rnd() * 130;
-      const dark = rnd() > 0.45;
-      c.strokeStyle = dark ? "rgba(0,0,0,.10)" : hexA(pal.glow, 0.05);
+      c.strokeStyle = rnd() > 0.45 ? "rgba(0,0,0,.10)" : hexA(pal.glow, 0.05);
       c.lineWidth = 0.9 + rnd() * 0.9;
       c.beginPath();
       c.moveTo(x, y);
@@ -1197,7 +1572,6 @@
       c.stroke();
     }
 
-    // 水面
     const wy = H * 0.803;
     const wg = c.createLinearGradient(0, wy, 0, H);
     wg.addColorStop(0, shade(pal.water, 1.45));
@@ -1206,24 +1580,21 @@
     c.fillStyle = wg;
     c.fillRect(0, wy, W, H - wy);
 
-    // 水面倒影：月光的碎影
     c.save();
     c.globalCompositeOperation = "lighter";
     for(let i = 0; i < 26; i++){
       const t = i / 26;
       const y = wy + 6 + t * (H - wy) * 0.84;
       const spread = gr * (0.45 + t * 1.7);
-      const a = 0.15 * (1 - t) + 0.015;
       const g2 = c.createLinearGradient(gx - spread, y, gx + spread, y);
       g2.addColorStop(0, hexA(pal.glow, 0));
-      g2.addColorStop(0.5, hexA(pal.glow, a));
+      g2.addColorStop(0.5, hexA(pal.glow, 0.15 * (1 - t) + 0.015));
       g2.addColorStop(1, hexA(pal.glow, 0));
       c.fillStyle = g2;
       c.fillRect(gx - spread, y, spread * 2, 1.5 + t * 3);
     }
     c.restore();
 
-    // 水纹
     for(let i = 0; i < 90; i++){
       const y = wy + 10 + Math.pow(rnd(), 0.7) * (H - wy - 24);
       const nearGlow = Math.max(0, 1 - Math.abs(rnd() * W - gx) / (W * 0.5));
@@ -1237,10 +1608,8 @@
       c.stroke();
     }
 
-    // 水天交界
     for(let i = 0; i < 9; i++){
-      const x = rnd() * W;
-      const len = 40 + rnd() * 120;
+      const x = rnd() * W, len = 40 + rnd() * 120;
       c.strokeStyle = hexA(pal.glow, 0.12 + rnd() * 0.1);
       c.lineWidth = 1.2;
       c.beginPath();
@@ -1249,75 +1618,72 @@
       c.stroke();
     }
 
-    // 飞鸟
-    const birdCount = 3 + Math.floor(rnd() * 4);
     c.strokeStyle = hexA(pal.glow, 0.5);
     c.lineWidth = 2;
     c.lineCap = "round";
-    for(let i = 0; i < birdCount; i++){
-      const bx = W * (0.12 + rnd() * 0.5);
-      const by = H * (0.18 + rnd() * 0.2);
-      const s = 9 + rnd() * 13;
+    for(let i = 0; i < 3 + Math.floor(rnd() * 4); i++){
+      const bx = W * (0.12 + rnd() * 0.5), by = H * (0.18 + rnd() * 0.2), bs = 9 + rnd() * 13;
       c.beginPath();
-      c.moveTo(bx - s, by);
-      c.quadraticCurveTo(bx - s * 0.4, by - s * 0.55, bx, by);
-      c.quadraticCurveTo(bx + s * 0.4, by - s * 0.55, bx + s, by);
+      c.moveTo(bx - bs, by);
+      c.quadraticCurveTo(bx - bs * 0.4, by - bs * 0.55, bx, by);
+      c.quadraticCurveTo(bx + bs * 0.4, by - bs * 0.55, bx + bs, by);
       c.stroke();
     }
 
-    // 纸张颗粒
-    for(let i = 0; i < 3200; i++){
-      const light = rnd() > 0.5;
-      c.fillStyle = light ? "rgba(255,255,255,.035)" : "rgba(0,0,0,.05)";
+    const grain = Math.round(3200 * (s < 0.6 ? 0.3 : 1));
+    for(let i = 0; i < grain; i++){
+      c.fillStyle = rnd() > 0.5 ? "rgba(255,255,255,.035)" : "rgba(0,0,0,.05)";
       c.fillRect(rnd() * W, rnd() * H, 1.3, 1.3);
     }
 
-    // 暗角
-    const vg = c.createRadialGradient(W/2, H/2, H * 0.32, W/2, H/2, H * 0.86);
+    const vg = c.createRadialGradient(W / 2, H / 2, H * 0.32, W / 2, H / 2, H * 0.86);
     vg.addColorStop(0, "rgba(0,0,0,0)");
     vg.addColorStop(1, "rgba(0,0,0,.46)");
     c.fillStyle = vg;
     c.fillRect(0, 0, W, H);
 
-    // 内框
     c.strokeStyle = "rgba(211,177,115,.28)";
     c.lineWidth = 1.4;
     c.strokeRect(26, 26, W - 52, H - 52);
 
-    // 题名
-    vText(c, poem.title, W - 76, 104, 50, 1.26, pal.glow, "600", true);
+    const latin = /[A-Za-z]/.test(poem.title);
+    let sealY;
+    if(latin){
+      c.save();
+      c.fillStyle = pal.glow;
+      c.font = `600 46px ${EN_SERIF}`;
+      c.textAlign = "right";
+      c.textBaseline = "middle";
+      c.shadowColor = "rgba(0,0,0,.55)";
+      c.shadowBlur = 18;
+      c.fillText(poem.title, W - 62, 112);
+      c.restore();
+      sealY = 210;
+    } else {
+      sealY = vText(c, poem.title, W - 76, 104, 50, 1.26, pal.glow, "600") + 56;
+    }
 
-    // 印章
     const seal = 76;
     c.save();
-    c.translate(W - 76, 104 + poem.title.length * 50 * 1.26 + 66);
+    c.translate(W - 76, sealY);
     c.rotate(-0.05);
     c.fillStyle = "#B8402C";
-    c.fillRect(-seal/2, -seal/2, seal, seal);
+    c.fillRect(-seal / 2, -seal / 2, seal, seal);
     c.strokeStyle = "rgba(245,233,214,.55)";
     c.lineWidth = 1;
-    c.strokeRect(-seal/2 + 5, -seal/2 + 5, seal - 10, seal - 10);
+    c.strokeRect(-seal / 2 + 5, -seal / 2 + 5, seal - 10, seal - 10);
     c.fillStyle = "#F5E9D6";
     c.font = `600 25px ${SERIF}`;
     c.textAlign = "center";
     c.textBaseline = "middle";
-    c.fillText("拾", 0, -16);
+    c.fillText("贪", 0, -16);
     c.fillText("词", 0, 18);
     c.restore();
   }
 
-  /* ---------- 流程编排 ---------- */
+  /* ================= 成诗流程 ================= */
   let working = false;
   let poemRun = 0;
-
-  function setStatus(text){
-    if(!text){
-      poemStatus.hidden = true;
-      return;
-    }
-    poemStatus.hidden = false;
-    poemStatusText.textContent = text;
-  }
 
   async function runPoem(skipAsk){
     if(working) return;
@@ -1342,24 +1708,29 @@
       if(runId !== poemRun) return;
       state.poem = poem;
 
-      renderPoem(poem, words);
+      renderPoem(poem);
       poemBody.hidden = false;
       setStatus("正在作画…");
       remixBtn.disabled = true;
 
       await new Promise(r => setTimeout(r, 620));
       if(runId !== poemRun) return;
-      drawArt(artCanvas, poem);
-
+      drawArt(artCanvas, poem, 1);
       requestAnimationFrame(() => artCanvas.classList.add("show"));
       setStatus("");
+      audio.chord();
+
       if(state.phase === "writing"){
         overlay.innerHTML = `
           <p class="kicker">八字成诗</p>
           <h2>诗已成</h2>
           <p>向下读诗。想换一种写法，就重新混一次。</p>
-          <button class="btn restart-btn" data-act="restart">重新开始</button>`;
+          <div class="row">
+            <button class="btn primary restart-btn" data-act="restart">重新开始</button>
+            <button class="btn" data-act="home">回主界面</button>
+          </div>`;
       }
+
       if(poem.source !== "local"){
         footnote.innerHTML = "画面由诗中的意象与色调生成，每次重混都会重画。";
       } else if(canAskLLM()){
@@ -1368,11 +1739,11 @@
         footnote.innerHTML = "公开版由<b>本地诗稿引擎</b>写成，八个词全部用上；画面按诗中的意象与色调生成。";
       }
 
-      if(!reduceMotion){
-        poemPanel.scrollIntoView({behavior:"smooth", block:"start"});
-      } else {
-        poemPanel.scrollIntoView({block:"start"});
-      }
+      addToCollection(poem);
+      toast("已收进词录");
+
+      if(!reduceMotion) poemPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+      else poemPanel.scrollIntoView({ block: "start" });
     } finally {
       remixBtn.disabled = false;
       saveBtn.disabled = false;
@@ -1382,7 +1753,7 @@
 
   function beginPoem(){
     state.phase = "writing";
-    state.captured = state.box.slice();
+    state.captured = state.box.map(b => b.word);
     overlay.hidden = false;
     overlay.innerHTML = `
       <p class="kicker">集齐八个</p>
@@ -1398,37 +1769,351 @@
   }
 
   function saveArt(){
+    const cv = state.poem ? artCanvas : null;
+    if(!cv) return;
     try {
       const a = document.createElement("a");
-      a.download = `拾词-${state.poem ? state.poem.title : "诗意图"}.png`;
-      a.href = artCanvas.toDataURL("image/png");
+      a.download = `贪词蛇-${state.poem.title}.png`;
+      a.href = cv.toDataURL("image/png");
       a.click();
     } catch(err){
       footnote.textContent = "这幅画没能存下来，可以试试截屏。";
     }
   }
 
-  function restart(){
-    poemRun++;
-    poemPanel.hidden = true;
-    poemBody.hidden = true;
-    artCanvas.classList.remove("show");
-    setStatus("");
-    resetGame();
-    window.scrollTo({top:0, behavior: reduceMotion ? "auto" : "smooth"});
+  /* ================= 收藏 ================= */
+  const COLL_KEY = "shici.coll";
+  const collGrid = $("collGrid");
+  const collEmpty = $("collEmpty");
+  const collCount = $("collCount");
+  const detail = $("detail");
+  const detailTitle = $("detailTitle");
+  const detailLines = $("detailLines");
+  const detailPoemWrap = $("detailPoemWrap");
+  const detailDate = $("detailDate");
+  const detailWords = $("detailWords");
+  const detailArt = $("detailArt");
+
+  function fmtDate(ts){
+    const d = new Date(ts);
+    const pad = n => String(n).padStart(2, "0");
+    return `${d.getMonth() + 1}月${d.getDate()}日 ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  }
+
+  function loadColl(){
+    const v = store.get(COLL_KEY, []);
+    return Array.isArray(v) ? v : [];
+  }
+
+  function addToCollection(poem){
+    const list = loadColl();
+    list.unshift({
+      id: Date.now() + Math.floor(Math.random() * 1000),
+      title: poem.title,
+      lines: poem.lines.slice(),
+      imageHint: poem.imageHint || "",
+      words: poem.words.slice(),
+      mode: state.mode,
+      ts: Date.now()
+    });
+    store.set(COLL_KEY, list.slice(0, 30));
+  }
+
+  function renderCollection(){
+    const list = loadColl();
+    collGrid.innerHTML = "";
+    collEmpty.hidden = list.length > 0;
+    collCount.textContent = `${list.length} 首`;
+    list.forEach((item, idx) => {
+      const card = document.createElement("button");
+      card.type = "button";
+      card.className = "coll-card";
+      const cv = document.createElement("canvas");
+      const cap = document.createElement("div");
+      cap.className = "cap";
+      const b = document.createElement("b");
+      b.textContent = item.title;
+      const s = document.createElement("span");
+      s.textContent = `${item.mode === "mixed" ? "混合模式" : "经典模式"} · ${fmtDate(item.ts)}`;
+      cap.append(b, s);
+      card.append(cv, cap);
+      card.addEventListener("click", () => openDetail(item));
+      collGrid.appendChild(card);
+      setTimeout(() => drawArt(cv, item, 0.32), 40 * idx);
+    });
+  }
+
+  function openDetail(item){
+    detail.hidden = false;
+    detail.dataset.id = String(item.id);
+    detailTitle.textContent = item.title;
+    const latin = /[A-Za-z]/.test(item.title + item.lines.join(""));
+    detailPoemWrap.classList.toggle("latin", latin);
+    detailLines.innerHTML = "";
+    item.lines.forEach(line => {
+      const p = document.createElement("p");
+      p.textContent = line;
+      detailLines.appendChild(p);
+    });
+    detailDate.textContent = `${item.mode === "mixed" ? "混合模式" : "经典模式"} · ${fmtDate(item.ts)}`;
+    detailWords.textContent = item.words.join(" · ");
+    drawArt(detailArt, item, 1);
+    document.body.style.overflow = "hidden";
+    audio.ui();
+  }
+
+  function closeDetail(){
+    detail.hidden = true;
+    document.body.style.overflow = "";
+  }
+
+  $("detailClose").addEventListener("click", closeDetail);
+  detail.addEventListener("click", e => { if(e.target === detail) closeDetail(); });
+  document.addEventListener("keydown", e => { if(e.key === "Escape" && !detail.hidden) closeDetail(); });
+
+  $("detailSave").addEventListener("click", () => {
+    try {
+      const a = document.createElement("a");
+      a.download = `贪词蛇-${detailTitle.textContent}.png`;
+      a.href = detailArt.toDataURL("image/png");
+      a.click();
+    } catch(err){ toast("这幅画没能存下来"); }
+  });
+
+  $("detailDelete").addEventListener("click", () => {
+    const id = Number(detail.dataset.id);
+    const list = loadColl().filter(it => it.id !== id);
+    store.set(COLL_KEY, list);
+    closeDetail();
+    renderCollection();
+    toast("已从收藏中删除");
+  });
+
+  /* ================= 设置 ================= */
+  const musicVol = $("musicVol");
+  const sfxVol = $("sfxVol");
+  const musicVal = $("musicVal");
+  const sfxVal = $("sfxVal");
+  const speedSeg = $("speedSeg");
+  const speedVal = $("speedVal");
+  const SPEEDS = [210, 168, 130, 100];
+  const SPEED_NAME = { 210: "慢", 168: "标准", 130: "快", 100: "极快" };
+
+  function paintRange(el){
+    const p = (Number(el.value) - Number(el.min)) / (Number(el.max) - Number(el.min)) * 100;
+    el.style.setProperty("--p", p + "%");
+  }
+
+  function syncSpeedUI(){
+    speedSeg.querySelectorAll("button").forEach(b => {
+      b.setAttribute("aria-pressed", String(Number(b.dataset.speed) === state.base));
+    });
+    speedVal.textContent = SPEED_NAME[state.base] || "标准";
+  }
+
+  function syncSettingsUI(){
+    const v = audio.get();
+    musicVol.value = Math.round(v.music * 100);
+    sfxVol.value = Math.round(v.sfx * 100);
+    musicVal.textContent = musicVol.value;
+    sfxVal.textContent = sfxVol.value;
+    paintRange(musicVol);
+    paintRange(sfxVol);
+    syncSpeedUI();
+  }
+
+  function persistVol(){
+    store.set("shici.vol", { music: Number(musicVol.value), sfx: Number(sfxVol.value) });
+  }
+
+  musicVol.addEventListener("input", e => {
+    const v = Number(e.target.value);
+    audio.setMusic(v / 100);
+    musicVal.textContent = v;
+    paintRange(e.target);
+    persistVol();
+  });
+  sfxVol.addEventListener("input", e => {
+    const v = Number(e.target.value);
+    audio.setSfx(v / 100);
+    sfxVal.textContent = v;
+    paintRange(e.target);
+    persistVol();
+  });
+  musicVol.addEventListener("change", () => audio.ui());
+  sfxVol.addEventListener("change", () => audio.ui());
+
+  speedSeg.addEventListener("click", e => {
+    const btn = e.target.closest("button");
+    if(!btn) return;
+    state.base = Number(btn.dataset.speed);
+    state.speed = Math.max(80, state.base - state.box.length * 5);
+    store.set("shici.speed", state.base);
+    syncSpeedUI();
+    audio.ui();
+  });
+
+  /* ================= 导航 ================= */
+  let settingsReturn = "home";
+
+  function renderPause(){
+    overlay.hidden = false;
+    overlay.innerHTML = `
+      <p class="kicker">停一停</p>
+      <h2>已暂停</h2>
+      <p>空格或下面的按钮继续。</p>
+      <div class="row">
+        <button class="btn primary" data-act="resume">继续</button>
+        <button class="btn" data-act="home">回主界面</button>
+      </div>`;
+  }
+
+  function pauseGame(){
+    if(state.phase === "playing"){
+      state.phase = "paused";
+      renderPause();
+    }
+  }
+
+  function goHome(target){
+    pauseGame();
+    closeDetail();
+    showView(target || "home");
+    audio.ui();
+  }
+
+  document.querySelectorAll("[data-nav]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const to = btn.dataset.nav;
+      if(to === "play"){
+        pauseGame();
+        showView("play");
+        showModeChooser();
+        audio.ui();
+      } else if(to === "restart"){
+        newGame(state.mode);
+      } else if(to === "settings"){
+        settingsReturn = "home";
+        showView("settings");
+        audio.ui();
+      } else if(to === "settings-back"){
+        if(settingsReturn === "play"){
+          showView("play");
+          renderPause();
+        } else {
+          showView("home");
+        }
+        audio.ui();
+      } else if(to === "collection"){
+        closeDetail();
+        showView("collection");
+        audio.ui();
+      } else if(to === "home"){
+        goHome("home");
+      }
+    });
+  });
+
+  document.querySelector('[data-act="settings"]').addEventListener("click", () => {
+    settingsReturn = "play";
+    pauseGame();
+    showView("settings");
+    audio.ui();
+  });
+
+  /* ================= 主界面水墨 ================= */
+  const homeInk = $("homeInk");
+
+  function drawHomeInk(){
+    if(views.home.hidden) return;
+    const rect = homeInk.getBoundingClientRect();
+    const w = Math.floor(rect.width), h = Math.floor(rect.height);
+    if(!w || !h) return;
+    homeInk.width = Math.floor(w * DPR);
+    homeInk.height = Math.floor(h * DPR);
+    const c = homeInk.getContext("2d");
+    c.setTransform(DPR, 0, 0, DPR, 0, 0);
+    c.clearRect(0, 0, w, h);
+
+    const rnd = mulberry32(20261117);
+
+    const sky = c.createLinearGradient(0, 0, 0, h);
+    sky.addColorStop(0, "rgba(14,30,42,0)");
+    sky.addColorStop(1, "rgba(10,22,32,.55)");
+    c.fillStyle = sky;
+    c.fillRect(0, 0, w, h);
+
+    const mx = w * 0.72, my = h * 0.2, mr = Math.min(w, h) * 0.1;
+    const hg = c.createRadialGradient(mx, my, mr * 0.1, mx, my, mr * 3.2);
+    hg.addColorStop(0, "rgba(233,239,245,.18)");
+    hg.addColorStop(1, "rgba(233,239,245,0)");
+    c.fillStyle = hg;
+    c.beginPath();
+    c.arc(mx, my, mr * 3.2, 0, Math.PI * 2);
+    c.fill();
+    c.fillStyle = "rgba(236,242,246,.15)";
+    c.beginPath();
+    c.arc(mx, my, mr, 0, Math.PI * 2);
+    c.fill();
+
+    const cols = ["rgba(25,47,63,.48)", "rgba(19,38,52,.55)", "rgba(14,29,41,.62)", "rgba(9,21,30,.72)"];
+    for(let l = 0; l < 4; l++){
+      const base = h * (0.6 + l * 0.1);
+      const amp = 42 + l * 26;
+      const pts = ridgePoints(rnd, w, 4 + l * 2);
+      c.beginPath();
+      c.moveTo(0, h);
+      c.lineTo(0, base - pts[0].y * amp);
+      for(let i = 1; i < pts.length; i++){
+        const p = pts[i], q = pts[i - 1];
+        c.quadraticCurveTo(q.x, base - q.y * amp, (q.x + p.x) / 2, base - ((q.y + p.y) / 2) * amp);
+      }
+      c.lineTo(w, base - pts[pts.length - 1].y * amp);
+      c.lineTo(w, h);
+      c.closePath();
+      c.fillStyle = cols[l];
+      c.fill();
+    }
+
+    const mg = c.createLinearGradient(0, h * 0.56, 0, h * 0.78);
+    mg.addColorStop(0, "rgba(237,228,208,0)");
+    mg.addColorStop(0.5, "rgba(237,228,208,.05)");
+    mg.addColorStop(1, "rgba(237,228,208,0)");
+    c.fillStyle = mg;
+    c.fillRect(0, h * 0.56, w, h * 0.22);
+  }
+
+  /* ================= 提示与绑定 ================= */
+  let toastTimer = null;
+  function toast(msg){
+    const el = $("toast");
+    el.textContent = msg;
+    el.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove("show"), 1800);
   }
 
   remixBtn.addEventListener("click", remix);
   saveBtn.addEventListener("click", saveArt);
-  againBtn.addEventListener("click", restart);
+  againBtn.addEventListener("click", () => newGame(state.mode));
 
-  /* ---------- 启动 ---------- */
+  // 第一次交互时解锁音频
+  let unlocked = false;
+  function unlockOnce(){
+    if(unlocked) return;
+    unlocked = true;
+    audio.unlock();
+  }
+  document.addEventListener("pointerdown", unlockOnce, { once: false });
+  document.addEventListener("keydown", unlockOnce, { once: false });
+
+  /* ================= 启动 ================= */
+  syncSettingsUI();
+  showView("home");
+  drawHomeInk();
+  setTimeout(drawHomeInk, 120);
   resize();
-  resetGame();
-  syncSpeedUI();
   requestAnimationFrame(frame);
-
-  window.addEventListener("resize", () => setTimeout(resize, 30));
 
 })();
 </script>
