@@ -198,6 +198,7 @@
   .btn.primary{background:var(--gold);border-color:var(--gold);color:#11212B;font-weight:600}
   .btn.primary:hover{background:#E2C489;border-color:#E2C489}
   .btn:disabled{opacity:.42;cursor:default;transform:none}
+  .restart-btn{min-width:136px;margin-top:2px}
 
   .art-frame{
     margin-top:20px;border-radius:8px;overflow:hidden;
@@ -402,6 +403,11 @@
     state.acc = 0;
   }
 
+  function newRound(){
+    restart();
+    startGame();
+  }
+
   function togglePause(){
     if(state.phase === "playing"){
       state.phase = "paused";
@@ -426,7 +432,7 @@
       <p class="kicker">这一局</p>
       <h2>${reason}</h2>
       <p>已收 ${state.box.length} 个词。再来一局，凑满八个。</p>
-      <button class="btn primary" data-act="start">重新开始</button>`;
+      <button class="btn primary restart-btn" data-act="restart">重新开始</button>`;
   }
 
   function updateMeta(){
@@ -753,7 +759,8 @@
     } else if(e.key === " "){
       e.preventDefault();
       if(state.phase === "playing" || state.phase === "paused") togglePause();
-      else if(state.phase === "ready" || state.phase === "over") startGame();
+      else if(state.phase === "ready") startGame();
+      else if(state.phase === "over") newRound();
     }
   }, {passive:false});
 
@@ -790,6 +797,7 @@
     const btn = e.target.closest("button[data-act]");
     if(!btn) return;
     if(btn.dataset.act === "start") startGame();
+    if(btn.dataset.act === "restart") newRound();
     if(btn.dataset.act === "resume") togglePause();
   });
 
@@ -1300,6 +1308,7 @@
 
   /* ---------- 流程编排 ---------- */
   let working = false;
+  let poemRun = 0;
 
   function setStatus(text){
     if(!text){
@@ -1313,6 +1322,7 @@
   async function runPoem(skipAsk){
     if(working) return;
     working = true;
+    const runId = ++poemRun;
     remixBtn.disabled = true;
     saveBtn.disabled = true;
 
@@ -1325,9 +1335,11 @@
 
     try {
       await new Promise(r => setTimeout(r, 420));
+      if(runId !== poemRun) return;
 
       const hint = pick(REMIX_HINTS);
       const poem = skipAsk ? fallbackPoem(words) : await composePoem(words, hint);
+      if(runId !== poemRun) return;
       state.poem = poem;
 
       renderPoem(poem, words);
@@ -1336,6 +1348,7 @@
       remixBtn.disabled = true;
 
       await new Promise(r => setTimeout(r, 620));
+      if(runId !== poemRun) return;
       drawArt(artCanvas, poem);
 
       requestAnimationFrame(() => artCanvas.classList.add("show"));
@@ -1344,7 +1357,8 @@
         overlay.innerHTML = `
           <p class="kicker">八字成诗</p>
           <h2>诗已成</h2>
-          <p>向下读诗。想换一种写法，就重新混一次。</p>`;
+          <p>向下读诗。想换一种写法，就重新混一次。</p>
+          <button class="btn restart-btn" data-act="restart">重新开始</button>`;
       }
       if(poem.source !== "local"){
         footnote.innerHTML = "画面由诗中的意象与色调生成，每次重混都会重画。";
@@ -1395,6 +1409,7 @@
   }
 
   function restart(){
+    poemRun++;
     poemPanel.hidden = true;
     poemBody.hidden = true;
     artCanvas.classList.remove("show");
